@@ -1,0 +1,6 @@
+name: RuneCraft
+version: '1.0-SNAPSHOT'
+main: hoffmantv.runeCraft.RuneCraft
+api-version: '1.21'
+authors: [ HoffmanTV ]
+description: Brining all the best of RuneScape to Minecraft
