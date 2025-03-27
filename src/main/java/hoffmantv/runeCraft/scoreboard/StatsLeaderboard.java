@@ -1,7 +1,7 @@
 package hoffmantv.runeCraft.scoreboard;
 
-import hoffmantv.runeCraft.skills.CombatStats;
-import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.combat.CombatStats;
+import hoffmantv.runeCraft.skills.combat.PlayerCombatStatsManager;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStats;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStats;

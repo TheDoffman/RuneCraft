@@ -1,14 +1,15 @@
 package hoffmantv.runeCraft;
 
-import hoffmantv.runeCraft.combat.*;
 import hoffmantv.runeCraft.mobs.MobDeathListener;
-import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.PlayerJoinListener;
+import hoffmantv.runeCraft.skills.combat.*;
 import hoffmantv.runeCraft.mobs.MobSpawnListener;
 import hoffmantv.runeCraft.commands.TestLevelUpCommand;
 import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
 import hoffmantv.runeCraft.scoreboard.StatsLeaderboard;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingListener;
 import hoffmantv.runeCraft.skills.firemaking.LogPlacePreventionListener;
+import hoffmantv.runeCraft.skills.mining.MiningListener;
 import hoffmantv.runeCraft.skills.woodcutting.AxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingListener;
 import org.bukkit.Bukkit;
@@ -51,6 +52,7 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AxeHoldListener(), this);
         getServer().getPluginManager().registerEvents(new FiremakingListener(), this);
         getServer().getPluginManager().registerEvents(new LogPlacePreventionListener(), this);
+        getServer().getPluginManager().registerEvents(new MiningListener(), this);
 
 
         // Register the test level up command.
@@ -75,10 +77,10 @@ public final class RuneCraft extends JavaPlugin {
     private void initModules() {
         // Register combat commands and event listeners
         if (getCommand("attack") != null) {
-            getCommand("attack").setExecutor(new hoffmantv.runeCraft.combat.CombatCommand());
+            getCommand("attack").setExecutor(new CombatCommand());
         }
-        getServer().getPluginManager().registerEvents(new hoffmantv.runeCraft.combat.CombatListener(this), this);
-        getServer().getPluginManager().registerEvents(new hoffmantv.runeCraft.combat.CombatMovementListener(), this);
+        getServer().getPluginManager().registerEvents(new CombatListener(this), this);
+        getServer().getPluginManager().registerEvents(new CombatMovementListener(), this);
         getLogger().info("Combat module initialized.");
     }
 
