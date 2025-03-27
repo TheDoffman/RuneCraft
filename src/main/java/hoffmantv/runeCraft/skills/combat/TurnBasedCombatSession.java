@@ -1,11 +1,9 @@
 // Updated TurnBasedCombatSession.java – Added mob facing and player swing each tick
-package hoffmantv.runeCraft.combat;
+package hoffmantv.runeCraft.skills.combat;
 
 import hoffmantv.runeCraft.RuneCraft;
 import hoffmantv.runeCraft.mobs.MobStatsUtil;
 import hoffmantv.runeCraft.mobs.MobUtil;
-import hoffmantv.runeCraft.skills.CombatStats;
-import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -224,7 +222,7 @@ public class TurnBasedCombatSession {
         combatActive = false;
         if (target.isDead()) {
             double xpReward = calculateXPReward(target);
-            var stats = hoffmantv.runeCraft.skills.PlayerCombatStatsManager.getStats(player);
+            var stats = PlayerCombatStatsManager.getStats(player);
             stats.addKillExperience(xpReward, player);
             stats.save(player);
             hoffmantv.runeCraft.skills.PlayerSkillDataManager.saveData(plugin);

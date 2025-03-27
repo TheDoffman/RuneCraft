@@ -1,5 +1,5 @@
 // Updated TurnBasedCombatManager.java
-package hoffmantv.runeCraft.combat;
+package hoffmantv.runeCraft.skills.combat;
 
 import hoffmantv.runeCraft.RuneCraft;
 import org.bukkit.entity.LivingEntity;

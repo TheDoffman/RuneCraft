@@ -1,5 +1,5 @@
 // CombatCommand.java
-package hoffmantv.runeCraft.combat;
+package hoffmantv.runeCraft.skills.combat;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

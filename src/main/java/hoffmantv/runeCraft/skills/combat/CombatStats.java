@@ -1,6 +1,8 @@
-package hoffmantv.runeCraft.skills;
+package hoffmantv.runeCraft.skills.combat;
 
 
+import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
+import hoffmantv.runeCraft.skills.SkillRewardUtils;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;

@@ -1,5 +1,5 @@
 // Updated PlayerCombatStatsManager.java in hoffmantv.runeCraft.skilling
-package hoffmantv.runeCraft.skills;
+package hoffmantv.runeCraft.skills.combat;
 
 import org.bukkit.entity.Player;
 import java.util.HashMap;

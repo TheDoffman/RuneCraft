@@ -1,4 +1,4 @@
-package hoffmantv.runeCraft.combat;
+package hoffmantv.runeCraft.skills.combat;
 
 import org.bukkit.Material;
 

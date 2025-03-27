@@ -1,8 +1,8 @@
 // Updated TestLevelUpCommand.java – change line 33 to use getCombatLevel()
 package hoffmantv.runeCraft.commands;
 
-import hoffmantv.runeCraft.skills.CombatStats;
-import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.combat.CombatStats;
+import hoffmantv.runeCraft.skills.combat.PlayerCombatStatsManager;
 import hoffmantv.runeCraft.skills.SkillRewardUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

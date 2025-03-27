@@ -1,5 +1,5 @@
 // Updated CombatMovementListener.java
-package hoffmantv.runeCraft.combat;
+package hoffmantv.runeCraft.skills.combat;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
