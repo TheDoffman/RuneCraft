@@ -1,24 +1,64 @@
-// RuneCraft.java
 package hoffmantv.runeCraft;
 
+import hoffmantv.runeCraft.combat.*;
+import hoffmantv.runeCraft.mobs.MobDeathListener;
+import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.mobs.MobSpawnListener;
+import hoffmantv.runeCraft.commands.TestLevelUpCommand;
 import hoffmantv.runeCraft.skilling.PlayerSkillDataManager;
+import hoffmantv.runeCraft.skilling.StatsLeaderboard;
+import hoffmantv.runeCraft.skilling.woodcutting.WoodcuttingListener;
+import hoffmantv.runeCraft.skilling.woodcutting.WoodcuttingStatsManager;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import hoffmantv.runeCraft.combat.CombatCommand;
-import hoffmantv.runeCraft.combat.CombatListener;
-import hoffmantv.runeCraft.combat.CombatMovementListener;
 
 public final class RuneCraft extends JavaPlugin {
 
+    private static RuneCraft instance;
+    public static NamespacedKey getKey(String key) {
+        return new NamespacedKey(instance, key);
+    }
+    private StatsLeaderboard statsLeaderboard;
+
     @Override
     public void onEnable() {
-        PlayerSkillDataManager.setup(this);
+        instance = this;
+        // Load default configuration
         initConfig();
+        // Initialize modules including turn-based combat movement restriction
         initModules();
-        getLogger().info("RuneCraft plugin enabled. OSRS features are initializing...");
+        // Initialize the YAML file for storing player skill data.
+        PlayerSkillDataManager.setup(this);
+        PlayerSkillDataManager.reloadData();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerCombatStatsManager.loadPlayer(player);
+        }
+        // Initialize and schedule the leaderboard update.
+        statsLeaderboard = new StatsLeaderboard();
+        Bukkit.getScheduler().runTaskTimer(this, statsLeaderboard::update, 0L, 100L);
+        // Register command executors and event listeners.
+        getServer().getPluginManager().registerEvents(new CombatChatListener(), this);
+        getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
+        getServer().getPluginManager().registerEvents(new MobDeathListener(), this);
+        getServer().getPluginManager().registerEvents(new SwordHoldListener(), this);
+        getServer().getPluginManager().registerEvents(new ArmorEquipListener(), this);
+        getServer().getPluginManager().registerEvents(new ArmorRightClickListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new WoodcuttingListener(), this);
+
+        // Register the test level up command.
+        if (getCommand("testlevelup") != null) {
+            getCommand("testlevelup").setExecutor(new TestLevelUpCommand());
+        }
+        getLogger().info("RuneCraft plugin enabled.");
     }
 
     @Override
     public void onDisable() {
+        // Save player skill data on disable
+        hoffmantv.runeCraft.skilling.PlayerSkillDataManager.saveData(this);
         getLogger().info("RuneCraft plugin disabled.");
     }
 
@@ -30,12 +70,14 @@ public final class RuneCraft extends JavaPlugin {
     private void initModules() {
         // Register combat commands and event listeners
         if (getCommand("attack") != null) {
-            getCommand("attack").setExecutor(new CombatCommand());
+            getCommand("attack").setExecutor(new hoffmantv.runeCraft.combat.CombatCommand());
         }
-        // Pass the plugin instance to CombatListener so it can provide it to the turn-based combat session.
-        getServer().getPluginManager().registerEvents(new CombatListener(this), this);
-        // Register movement listener to prevent players from moving during turn-based combat
-        getServer().getPluginManager().registerEvents(new CombatMovementListener(), this);
+        getServer().getPluginManager().registerEvents(new hoffmantv.runeCraft.combat.CombatListener(this), this);
+        getServer().getPluginManager().registerEvents(new hoffmantv.runeCraft.combat.CombatMovementListener(), this);
         getLogger().info("Combat module initialized.");
+    }
+
+    public static RuneCraft getInstance() {
+        return instance;
     }
 }

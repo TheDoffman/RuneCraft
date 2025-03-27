@@ -1,7 +1,8 @@
-// Updated CombatListener.java
 package hoffmantv.runeCraft.combat;
 
 import hoffmantv.runeCraft.RuneCraft;
+import hoffmantv.runeCraft.skilling.CombatStats;
+import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -19,40 +20,49 @@ public class CombatListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        // Only allow players to trigger turn-based combat
+        // Only allow players to initiate combat.
         if (!(event.getDamager() instanceof Player)) {
             return;
         }
 
-        Player attacker = (Player) event.getDamager();
-        // Ensure the player is holding a sword in their main hand.
-        if (attacker.getInventory().getItemInMainHand() == null ||
-                !isSword(attacker.getInventory().getItemInMainHand().getType())) {
-            attacker.sendMessage("You must use a sword to attack!");
+        Player player = (Player) event.getDamager();
+        // Check if player is holding an item.
+        if (player.getInventory().getItemInMainHand() == null) {
+            player.sendMessage("You must hold a sword to attack!");
             event.setCancelled(true);
             return;
         }
 
-        // Allow attacks on any mob (any LivingEntity that isn't a Player)
-        if (!(event.getEntity() instanceof LivingEntity) || (event.getEntity() instanceof Player)) {
-            attacker.sendMessage("You cannot initiate turn-based combat on that target!");
+        Material heldItem = player.getInventory().getItemInMainHand().getType();
+        // Check if the held item is a sword.
+        if (!heldItem.toString().endsWith("_SWORD")) {
+            player.sendMessage("You must use a sword to attack!");
             event.setCancelled(true);
             return;
         }
 
-        // Cancel the default damage event to start turn-based combat.
-        event.setCancelled(true);
+        // Check if the player's strength level is high enough to use this sword.
+        int requiredStrength = SwordUtils.getRequiredStrength(heldItem);
+        CombatStats stats = PlayerCombatStatsManager.getStats(player);
+        if (stats.getStrengthLevel() < requiredStrength) {
+            player.sendMessage("Your strength level (" + stats.getStrengthLevel() +
+                    ") is too low to effectively use this sword. You need at least " + requiredStrength + "!");
+            event.setCancelled(true);
+            return;
+        }
 
-        // Retrieve the base damage based on the sword type.
-        Material swordType = attacker.getInventory().getItemInMainHand().getType();
-        double swordDamage = SwordUtils.getSwordDamage(swordType);
+        // Retrieve the base sword damage.
+        double swordDamage = SwordUtils.getSwordDamage(heldItem);
 
-        // Start the turn-based combat session using the plugin instance.
-        TurnBasedCombatManager.startSession(attacker, (LivingEntity) event.getEntity(), swordDamage, plugin);
-    }
-
-    // Helper method to determine if the provided material is a sword.
-    private boolean isSword(Material material) {
-        return material.toString().endsWith("_SWORD");
+        // If the target is a LivingEntity and not a player, start turn-based combat.
+        if (event.getEntity() instanceof LivingEntity && !(event.getEntity() instanceof Player)) {
+            LivingEntity target = (LivingEntity) event.getEntity();
+            event.setCancelled(true);  // Cancel the default damage event.
+            // Start the turn-based combat session (make sure TurnBasedCombatManager.startSession is implemented).
+            TurnBasedCombatManager.startSession(player, target, swordDamage, plugin);
+        } else {
+            // Otherwise, apply normal damage.
+            event.setDamage(swordDamage);
+        }
     }
 }

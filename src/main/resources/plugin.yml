@@ -4,3 +4,7 @@ main: hoffmantv.runeCraft.RuneCraft
 api-version: '1.21'
 authors: [ HoffmanTV ]
 description: Brining all the best of RuneScape to Minecraft
+commands:
+  testlevelup:
+    description: Gives the player a list of available commands.
+    usage: /testlevelup

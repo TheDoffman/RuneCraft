@@ -1,7 +1,10 @@
-// Updated TurnBasedCombatSession.java with XP Rewards Based on Mob Killed
+// Updated TurnBasedCombatSession.java – Added mob facing and player swing each tick
 package hoffmantv.runeCraft.combat;
 
 import hoffmantv.runeCraft.RuneCraft;
+import hoffmantv.runeCraft.mobs.MobStatsUtil;
+import hoffmantv.runeCraft.mobs.MobUtil;
+import hoffmantv.runeCraft.skilling.CombatStats;
 import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,7 +13,6 @@ import org.bukkit.World;
 import org.bukkit.boss.BossBar;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -52,10 +54,17 @@ public class TurnBasedCombatSession {
         bossBar.addPlayer(player);
         updateBossBar();
 
+        // Ensure mob's level is shown in its name (if applicable)
+        if (!(target instanceof Player)) {
+            CombatStats playerStats = PlayerCombatStatsManager.getStats(player);
+            int playerCombatLevel = playerStats.getCombatLevel();
+            int mobLevel = MobStatsUtil.getMobLevel(target);
+            MobUtil.updateMobNameWithLevel(target, mobLevel, playerCombatLevel);
+        }
+
         // Schedule a repeating task to simulate turn-based combat.
         new BukkitRunnable() {
             boolean playerTurn = true;
-
             @Override
             public void run() {
                 if (!combatActive || player.isDead() || target.isDead()) {
@@ -63,6 +72,21 @@ public class TurnBasedCombatSession {
                     cancel();
                     return;
                 }
+                // Make the player swing every tick.
+                player.swingMainHand();
+
+                // Make the mob face the player.
+                if (!(target instanceof Player)) {
+                    Location mobLoc = target.getLocation();
+                    Location playerLoc = player.getLocation();
+                    double dx = playerLoc.getX() - mobLoc.getX();
+                    double dz = playerLoc.getZ() - mobLoc.getZ();
+                    float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+                    mobLoc.setYaw(yaw);
+                    // Teleporting the mob updates its orientation.
+                    target.teleport(mobLoc);
+                }
+
                 // Alternate turns between player and target.
                 if (playerTurn) {
                     simulateAttack(player, target);
@@ -75,30 +99,90 @@ public class TurnBasedCombatSession {
     }
 
     private void simulateAttack(LivingEntity attacker, LivingEntity defender) {
-        // If the attacker is a player, trigger the sword swing animation.
-        if (attacker instanceof Player) {
-            ((Player) attacker).swingMainHand();
-        }
+        // Check if attacker is a player and defender is a mob (non-player).
+        if (attacker instanceof Player && !(defender instanceof Player)) {
+            Player attackingPlayer = (Player) attacker;
+            CombatStats playerStats = PlayerCombatStatsManager.getStats(attackingPlayer);
+            int playerCombatLevel = playerStats.getCombatLevel();
+            int mobLevel = MobStatsUtil.getMobLevel(defender);
+            // Update mob's name to show its level and proper color.
+            MobUtil.updateMobNameWithLevel(defender, mobLevel, playerCombatLevel);
 
-        double missChance = 0.2; // 20% chance to miss.
-        if (random.nextDouble() < missChance) {
-            if (attacker instanceof Player) {
-                player.sendMessage("You swing but miss!");
+            double baseMissChance = 0.2;
+            double damageMultiplier;
+            double missChanceModifier;
+            int diff = mobLevel - playerCombatLevel; // Positive if mob is higher.
+
+            if (diff > 0) {
+                // Mob is higher than player: player's attack is less effective and more likely to miss.
+                damageMultiplier = 0.8;
+                missChanceModifier = diff * 0.02; // Increase miss chance per level difference.
+            } else if (diff < 0) {
+                // Player is higher than mob: player's attack is more effective and less likely to miss.
+                damageMultiplier = 1.2;
+                missChanceModifier = -0.05; // Lower miss chance.
             } else {
-                player.sendMessage(target.getName() + " swings but misses!");
+                damageMultiplier = 1.0;
+                missChanceModifier = 0.0;
             }
-            return;
+            double finalDamage = baseDamage * damageMultiplier;
+            double finalMissChance = baseMissChance + missChanceModifier;
+            if (random.nextDouble() < finalMissChance) {
+                attackingPlayer.sendMessage("You swing but miss!");
+                return;
+            }
+            defender.damage(finalDamage);
+            if (defender.equals(target)) {
+                showDamage(defender, finalDamage);
+                updateBossBar();
+            }
         }
-        // Apply base damage to the defender.
-        defender.damage(baseDamage);
+        else if (attacker instanceof LivingEntity && defender instanceof Player) {
+            Player defendingPlayer = (Player) defender;
+            // Retrieve player's combat stats.
+            CombatStats playerStats = PlayerCombatStatsManager.getStats(defendingPlayer);
+            int playerCombatLevel = playerStats.getCombatLevel();
+            int mobLevel = MobStatsUtil.getMobLevel(attacker);
+            int diff = mobLevel - playerCombatLevel; // Positive if mob is higher.
 
-        // If the attacker is the player and the defender is the target, update the boss bar and show damage above head.
-        if (attacker instanceof Player && defender.equals(target)) {
-            showDamage(defender, baseDamage);
-            updateBossBar();
-        } else {
-            // For attacks on the player, simply send a chat message.
-            player.sendMessage(target.getName() + " hits you for " + baseDamage + " damage!");
+            double baseMissChance = 0.2;
+            double damageMultiplier;
+            double missChanceModifier;
+            if (diff > 0) {
+                // Mob is higher than player: mob's attack is stronger and more likely to hit.
+                damageMultiplier = 1.2;
+                missChanceModifier = -0.05; // Lower miss chance.
+            } else if (diff < 0) {
+                // Mob is lower than player: mob's attack is weaker.
+                damageMultiplier = 0.8;
+                missChanceModifier = (-diff) * 0.02; // Increase miss chance.
+            } else {
+                damageMultiplier = 1.0;
+                missChanceModifier = 0.0;
+            }
+            double finalDamage = baseDamage * damageMultiplier;
+            double finalMissChance = baseMissChance + missChanceModifier;
+            if (random.nextDouble() < finalMissChance) {
+                defendingPlayer.sendMessage(attacker.getName() + " swings but misses!");
+                return;
+            }
+            defender.damage(finalDamage);
+            defendingPlayer.sendMessage(attacker.getName() + " hits you for " + finalDamage + " damage!");
+        }
+        else {
+            // Default behavior if none of the above conditions apply.
+            double missChance = 0.2;
+            if (random.nextDouble() < missChance) {
+                if (attacker instanceof Player) {
+                    ((Player) attacker).sendMessage("You swing but miss!");
+                }
+                return;
+            }
+            defender.damage(baseDamage);
+            if (attacker instanceof Player && defender.equals(target)) {
+                showDamage(defender, baseDamage);
+                updateBossBar();
+            }
         }
     }
 
@@ -107,23 +191,22 @@ public class TurnBasedCombatSession {
         double maxHealth = target.getMaxHealth();
         double progress = health / maxHealth;
         bossBar.setProgress(Math.max(0, Math.min(progress, 1.0)));
-        bossBar.setTitle(target.getName() + " Health: " + health + "/" + maxHealth);
+        // Show whole numbers for health.
+        bossBar.setTitle(target.getName() + " Health: " + (int) health + "/" + (int) maxHealth);
     }
 
     private void showDamage(LivingEntity defender, double damage) {
         World world = defender.getWorld();
         // Position the display just above the entity's head.
         Location location = defender.getLocation().add(0, defender.getHeight() + 0.2, 0);
-        // Spawn an invisible ArmorStand to display the red-colored damage.
-        ArmorStand damageDisplay = world.spawn(location, ArmorStand.class, armorStand -> {
+        // Spawn an invisible ArmorStand to display the damage.
+        var damageDisplay = world.spawn(location, org.bukkit.entity.ArmorStand.class, armorStand -> {
             armorStand.setVisible(false);
             armorStand.setGravity(false);
             armorStand.setCustomName(ChatColor.RED + String.valueOf(damage));
             armorStand.setCustomNameVisible(true);
             armorStand.setMarker(true);
         });
-
-        // Remove the damage display after 1 second (20 ticks).
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -133,25 +216,25 @@ public class TurnBasedCombatSession {
     }
 
     private double calculateXPReward(LivingEntity target) {
-        // A simple formula: XP reward based on target's max health multiplied by a constant.
+        // XP reward based on target's max health.
         return target.getMaxHealth() * 5.0;
     }
 
-    // Updated endCombat() method in TurnBasedCombatSession.java to display XP reward above the XP bar using a temporary BossBar
     public void endCombat() {
         combatActive = false;
-
         if (target.isDead()) {
             double xpReward = calculateXPReward(target);
-            // Award XP through the skilling system
-            PlayerCombatStatsManager.getStats(player).addExperience(xpReward);
-
-            // Create a BossBar to display the XP reward at the top of the screen (above the XP bar, health, and food)
-            BossBar xpRewardBar = Bukkit.createBossBar(ChatColor.GOLD + "XP Reward: " + xpReward, BarColor.GREEN, BarStyle.SOLID);
+            var stats = hoffmantv.runeCraft.skilling.PlayerCombatStatsManager.getStats(player);
+            stats.addKillExperience(xpReward, player);
+            stats.save(player);
+            hoffmantv.runeCraft.skilling.PlayerSkillDataManager.saveData(plugin);
+            var xpRewardBar = Bukkit.createBossBar(
+                    ChatColor.GOLD + "XP Reward: " + xpReward,
+                    BarColor.GREEN,
+                    BarStyle.SOLID
+            );
             xpRewardBar.addPlayer(player);
             xpRewardBar.setProgress(1.0);
-
-            // Schedule removal of the XP reward bar after 3 seconds (60 ticks)
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -159,17 +242,12 @@ public class TurnBasedCombatSession {
                 }
             }.runTaskLater(plugin, 60L);
         }
-
-        // Re-enable target movement if applicable
         if (!target.isDead() && target instanceof Creature) {
             ((Creature) target).setAI(true);
         }
-
-        // Remove the combat session BossBar if present
         if (bossBar != null) {
             bossBar.removeAll();
         }
-
         player.sendMessage("Combat session ended.");
         TurnBasedCombatManager.endSession(player);
     }

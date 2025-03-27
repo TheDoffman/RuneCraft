@@ -1,10 +1,8 @@
-// SwordUtils.java
 package hoffmantv.runeCraft.combat;
 
 import org.bukkit.Material;
 
 public class SwordUtils {
-    // Returns the base damage for a given sword type.
     public static double getSwordDamage(Material sword) {
         switch (sword) {
             case WOODEN_SWORD:
@@ -20,7 +18,26 @@ public class SwordUtils {
             case NETHERITE_SWORD:
                 return 8.0;
             default:
-                return 1.0; // Fallback damage for unexpected items.
+                return 1.0; // fallback for unexpected items
+        }
+    }
+
+    public static int getRequiredStrength(Material sword) {
+        switch (sword) {
+            case WOODEN_SWORD:
+                return 1;
+            case STONE_SWORD:
+                return 10;
+            case IRON_SWORD:
+                return 20;
+            case GOLDEN_SWORD:
+                return 15;
+            case DIAMOND_SWORD:
+                return 30;
+            case NETHERITE_SWORD:
+                return 40;
+            default:
+                return 0;
         }
     }
 }
