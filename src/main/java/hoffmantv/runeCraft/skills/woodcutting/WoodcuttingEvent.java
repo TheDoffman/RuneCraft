@@ -1,20 +1,14 @@
 package hoffmantv.runeCraft.skills.woodcutting;
 
 import hoffmantv.runeCraft.RuneCraft;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.Sound;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class WoodcuttingEvent extends BukkitRunnable {
 
@@ -98,6 +92,12 @@ public class WoodcuttingEvent extends BukkitRunnable {
         player.playSound(initialBlock.getLocation(), Sound.BLOCK_WOOD_BREAK, 1.0F, 1.0F);
         // Give the player one log item.
         ItemStack logItem = new ItemStack(logType, 1);
+        ItemMeta meta = logItem.getItemMeta();
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.GREEN + "Right-click" + ChatColor.GRAY + " the ground with this log to burn it.");
+        lore.add(ChatColor.GRAY + "Requires flint and steel in your inventory.");
+        meta.setLore(lore);
+        logItem.setItemMeta(meta);
         player.getInventory().addItem(logItem);
         // Place a sapling at the initial block's location.
         Material sapling = getSaplingForLog(logType);

@@ -8,6 +8,7 @@ import hoffmantv.runeCraft.commands.TestLevelUpCommand;
 import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
 import hoffmantv.runeCraft.scoreboard.StatsLeaderboard;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingListener;
+import hoffmantv.runeCraft.skills.firemaking.LogPlacePreventionListener;
 import hoffmantv.runeCraft.skills.woodcutting.AxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingListener;
 import org.bukkit.Bukkit;
@@ -21,7 +22,6 @@ public final class RuneCraft extends JavaPlugin {
     public static NamespacedKey getKey(String key) {
         return new NamespacedKey(instance, key);
     }
-    private StatsLeaderboard statsLeaderboard;
 
     @Override
     public void onEnable() {
@@ -37,7 +37,7 @@ public final class RuneCraft extends JavaPlugin {
             PlayerCombatStatsManager.loadPlayer(player);
         }
         // Initialize and schedule the leaderboard update.
-        statsLeaderboard = new StatsLeaderboard();
+        StatsLeaderboard statsLeaderboard = new StatsLeaderboard();
         Bukkit.getScheduler().runTaskTimer(this, statsLeaderboard::update, 0L, 100L);
         // Register command executors and event listeners.
         getServer().getPluginManager().registerEvents(new CombatChatListener(), this);
@@ -50,6 +50,7 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WoodcuttingListener(), this);
         getServer().getPluginManager().registerEvents(new AxeHoldListener(), this);
         getServer().getPluginManager().registerEvents(new FiremakingListener(), this);
+        getServer().getPluginManager().registerEvents(new LogPlacePreventionListener(), this);
 
 
         // Register the test level up command.
