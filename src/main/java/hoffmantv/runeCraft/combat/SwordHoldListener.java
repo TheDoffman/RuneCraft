@@ -2,8 +2,8 @@
 package hoffmantv.runeCraft.combat;
 
 import hoffmantv.runeCraft.RuneCraft;
-import hoffmantv.runeCraft.skilling.CombatStats;
-import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.CombatStats;
+import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

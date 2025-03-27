@@ -1,5 +1,5 @@
 // File: PlayerSkillDataManager.java
-package hoffmantv.runeCraft.skilling;
+package hoffmantv.runeCraft.skills;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

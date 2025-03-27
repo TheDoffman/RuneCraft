@@ -1,4 +1,4 @@
-package hoffmantv.runeCraft.skilling;
+package hoffmantv.runeCraft.skills;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.title.Title;

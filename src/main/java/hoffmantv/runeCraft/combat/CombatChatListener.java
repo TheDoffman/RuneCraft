@@ -1,7 +1,7 @@
 package hoffmantv.runeCraft.combat;
 
-import hoffmantv.runeCraft.skilling.CombatStats;
-import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.CombatStats;
+import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;

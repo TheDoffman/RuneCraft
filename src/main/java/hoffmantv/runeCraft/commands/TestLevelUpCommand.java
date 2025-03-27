@@ -1,9 +1,9 @@
 // Updated TestLevelUpCommand.java – change line 33 to use getCombatLevel()
 package hoffmantv.runeCraft.commands;
 
-import hoffmantv.runeCraft.skilling.CombatStats;
-import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
-import hoffmantv.runeCraft.skilling.SkillRewardUtils;
+import hoffmantv.runeCraft.skills.CombatStats;
+import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.SkillRewardUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,7 +28,7 @@ public class TestLevelUpCommand implements CommandExecutor {
 
         // Save the updated stats immediately.
         stats.save(player);
-        hoffmantv.runeCraft.skilling.PlayerSkillDataManager.saveData(hoffmantv.runeCraft.RuneCraft.getInstance());
+        hoffmantv.runeCraft.skills.PlayerSkillDataManager.saveData(hoffmantv.runeCraft.RuneCraft.getInstance());
 
         // Trigger the level-up effect for the Combat skill using overall combat level.
         SkillRewardUtils.triggerSkillRankUpEffect(player, "Combat", stats.getCombatLevel());

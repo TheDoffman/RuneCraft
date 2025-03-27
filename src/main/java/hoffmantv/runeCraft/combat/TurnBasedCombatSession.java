@@ -4,8 +4,8 @@ package hoffmantv.runeCraft.combat;
 import hoffmantv.runeCraft.RuneCraft;
 import hoffmantv.runeCraft.mobs.MobStatsUtil;
 import hoffmantv.runeCraft.mobs.MobUtil;
-import hoffmantv.runeCraft.skilling.CombatStats;
-import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.CombatStats;
+import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -224,10 +224,10 @@ public class TurnBasedCombatSession {
         combatActive = false;
         if (target.isDead()) {
             double xpReward = calculateXPReward(target);
-            var stats = hoffmantv.runeCraft.skilling.PlayerCombatStatsManager.getStats(player);
+            var stats = hoffmantv.runeCraft.skills.PlayerCombatStatsManager.getStats(player);
             stats.addKillExperience(xpReward, player);
             stats.save(player);
-            hoffmantv.runeCraft.skilling.PlayerSkillDataManager.saveData(plugin);
+            hoffmantv.runeCraft.skills.PlayerSkillDataManager.saveData(plugin);
             var xpRewardBar = Bukkit.createBossBar(
                     ChatColor.GOLD + "XP Reward: " + xpReward,
                     BarColor.GREEN,

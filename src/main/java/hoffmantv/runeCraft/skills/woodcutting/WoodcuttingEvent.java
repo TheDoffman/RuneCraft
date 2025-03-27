@@ -1,4 +1,4 @@
-package hoffmantv.runeCraft.skilling.woodcutting;
+package hoffmantv.runeCraft.skills.woodcutting;
 
 import hoffmantv.runeCraft.RuneCraft;
 import org.bukkit.Bukkit;
@@ -26,6 +26,9 @@ public class WoodcuttingEvent extends BukkitRunnable {
     // Save the tree shape (each block's location and its material).
     private final Map<Location, Material> treeShape = new HashMap<>();
 
+    // Maximum squared distance from the initial block for the event to continue.
+    private final double maxChopDistanceSquared = 64; // 8 blocks radius
+
     public WoodcuttingEvent(Player player, Block initialBlock) {
         this.player = player;
         this.initialBlock = initialBlock;
@@ -35,17 +38,47 @@ public class WoodcuttingEvent extends BukkitRunnable {
 
     @Override
     public void run() {
+        // Check if the player has moved too far from the initial block.
+        if (player.getLocation().distanceSquared(initialBlock.getLocation()) > maxChopDistanceSquared) {
+            player.sendMessage("You moved too far from the tree. Chopping canceled!");
+            cancel();
+            return;
+        }
+
+        // Check if the player is still holding an axe.
+        ItemStack tool = player.getInventory().getItemInMainHand();
+        if (tool == null || !isAxe(tool.getType())) {
+            player.sendMessage("You are no longer holding an axe. Chopping canceled!");
+            cancel();
+            return;
+        }
+
         // Simulate a chopping swing.
         ticksChopped++;
-        // Swing player's arm every tick.
+        // Animate the player's arm.
         player.swingMainHand();
-        // Play a chopping sound every tick.
+        // Play a chopping sound.
         player.playSound(player.getLocation(), Sound.BLOCK_WOOD_HIT, 1.0F, 1.0F);
 
-        // After a minimum number of swings, each additional swing has a chance to finish chopping.
+        // After a minimum of 3 swings, each additional swing has a chance to finish chopping.
         if (ticksChopped >= 3 && random.nextDouble() < 0.3) {
             finishChop();
             cancel();
+        }
+    }
+
+    // Helper method to check if a material is an axe.
+    private boolean isAxe(Material material) {
+        switch (material) {
+            case WOODEN_AXE:
+            case STONE_AXE:
+            case IRON_AXE:
+            case GOLDEN_AXE:
+            case DIAMOND_AXE:
+            case NETHERITE_AXE:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -61,17 +94,15 @@ public class WoodcuttingEvent extends BukkitRunnable {
         for (Block b : treeBlocks) {
             b.setType(Material.AIR);
         }
-
         // Play a tree falling sound.
         player.playSound(initialBlock.getLocation(), Sound.BLOCK_WOOD_BREAK, 1.0F, 1.0F);
-
         // Give the player one log item.
         ItemStack logItem = new ItemStack(logType, 1);
         player.getInventory().addItem(logItem);
-
         // Place a sapling at the initial block's location.
         Material sapling = getSaplingForLog(logType);
         initialBlock.setType(sapling);
+        player.sendMessage("The tree has been chopped down!");
 
         // Award woodcutting XP based on the log type.
         double xpReward = WoodcuttingUtils.getXpReward(logType);
@@ -81,20 +112,10 @@ public class WoodcuttingEvent extends BukkitRunnable {
             stats.save(player);
         }
 
-        // Show XP earned above the hotbar using the Adventure API's action bar.
-        // Make sure your project is set up to use the Adventure API.
-        ((net.kyori.adventure.audience.Audience) player)
-                .sendActionBar(net.kyori.adventure.text.Component.text("Woodcutting XP Earned: " + xpReward)
-                        .color(net.kyori.adventure.text.format.NamedTextColor.YELLOW));
-
-        player.sendMessage("The tree has been chopped down!");
-
         // Schedule regrowth: after a random delay between 1 and 30 seconds.
         int delay = (random.nextInt(30) + 1) * 20; // in ticks
         Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
-            // Check that the sapling is still there.
             if (initialBlock.getType() == sapling) {
-                // Regrow the tree by setting each block in the saved tree shape.
                 for (Map.Entry<Location, Material> entry : treeShape.entrySet()) {
                     Location loc = entry.getKey();
                     Material mat = entry.getValue();
@@ -108,15 +129,17 @@ public class WoodcuttingEvent extends BukkitRunnable {
     private Set<Block> getConnectedTreeBlocks(Block start) {
         Set<Block> visited = new HashSet<>();
         Set<Block> toVisit = new HashSet<>();
+        Location initialLoc = start.getLocation();
         toVisit.add(start);
 
         while (!toVisit.isEmpty()) {
             Block current = toVisit.iterator().next();
             toVisit.remove(current);
+            if (current.getLocation().distanceSquared(initialLoc) > maxChopDistanceSquared) {
+                continue;
+            }
             if (visited.contains(current)) continue;
             visited.add(current);
-
-            // If this block is part of the tree, add its adjacent blocks.
             if (isTreeBlock(current)) {
                 for (Block neighbor : getAdjacentBlocks(current)) {
                     if (!visited.contains(neighbor)) {

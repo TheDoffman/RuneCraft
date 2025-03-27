@@ -1,4 +1,4 @@
-package hoffmantv.runeCraft.skilling;
+package hoffmantv.runeCraft.skills;
 
 
 import org.bukkit.entity.Player;

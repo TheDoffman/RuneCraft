@@ -1,4 +1,4 @@
-package hoffmantv.runeCraft.skilling.woodcutting;
+package hoffmantv.runeCraft.skills.woodcutting;
 
 import org.bukkit.Material;
 

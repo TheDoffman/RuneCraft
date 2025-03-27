@@ -1,7 +1,7 @@
 // Updated MobSpawnListener.java – ensure all mobs (including animals) get a colored level tag immediately on spawn.
 package hoffmantv.runeCraft.mobs;
 
-import hoffmantv.runeCraft.skilling.PlayerCombatStatsManager;
+import hoffmantv.runeCraft.skills.PlayerCombatStatsManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
