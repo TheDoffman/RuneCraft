@@ -28,7 +28,6 @@ public class FiremakingListener implements Listener {
 
         // Only allow firemaking events on specific ground blocks.
         if (!isGroundBlock(clickedBlock.getType())) {
-            player.sendMessage(ChatColor.RED + "You can only start a fire on the ground.");
             // Return the log to the player's inventory (if any held log exists).
             ItemStack heldItem = player.getInventory().getItemInMainHand();
             if (heldItem != null && isLog(heldItem.getType())) {
