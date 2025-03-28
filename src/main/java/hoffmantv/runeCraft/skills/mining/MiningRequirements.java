@@ -23,6 +23,8 @@ public class MiningRequirements {
                 return 40;
             case NETHER_QUARTZ_ORE:
                 return 50;
+            case COPPER_ORE:
+                return 60;
             default:
                 return 1;
         }
@@ -47,6 +49,8 @@ public class MiningRequirements {
                 return 60;
             case NETHER_QUARTZ_ORE:
                 return 7;
+            case COPPER_ORE:
+                return 13;
             default:
                 return 1;
         }

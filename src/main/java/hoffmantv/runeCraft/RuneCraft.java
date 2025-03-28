@@ -9,7 +9,9 @@ import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
 import hoffmantv.runeCraft.scoreboard.StatsLeaderboard;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingListener;
 import hoffmantv.runeCraft.skills.firemaking.LogPlacePreventionListener;
+import hoffmantv.runeCraft.skills.mining.MiningBlockBreakPreventionListener;
 import hoffmantv.runeCraft.skills.mining.MiningListener;
+import hoffmantv.runeCraft.skills.mining.PickaxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.AxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingListener;
 import org.bukkit.Bukkit;
@@ -53,6 +55,9 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FiremakingListener(), this);
         getServer().getPluginManager().registerEvents(new LogPlacePreventionListener(), this);
         getServer().getPluginManager().registerEvents(new MiningListener(), this);
+        getServer().getPluginManager().registerEvents(new MiningBlockBreakPreventionListener(), this);
+        getServer().getPluginManager().registerEvents(new PickaxeHoldListener(), this);
+
 
 
         // Register the test level up command.
