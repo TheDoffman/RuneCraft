@@ -1,5 +1,7 @@
 package hoffmantv.runeCraft;
 
+import hoffmantv.runeCraft.commands.ClearInventoryCommand;
+import hoffmantv.runeCraft.commands.SetFishingSpotCommand;
 import hoffmantv.runeCraft.mobs.MobDeathListener;
 import hoffmantv.runeCraft.skills.PlayerJoinListener;
 import hoffmantv.runeCraft.skills.combat.*;
@@ -7,9 +9,11 @@ import hoffmantv.runeCraft.mobs.MobSpawnListener;
 import hoffmantv.runeCraft.commands.TestLevelUpCommand;
 import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
 import hoffmantv.runeCraft.scoreboard.StatsLeaderboard;
+import hoffmantv.runeCraft.skills.cooking.CookingListener;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingListener;
 import hoffmantv.runeCraft.skills.firemaking.LogPlacePreventionListener;
 import hoffmantv.runeCraft.skills.fishing.FishingListener;
+import hoffmantv.runeCraft.skills.fishing.FishingSpotsManager;
 import hoffmantv.runeCraft.skills.mining.MiningBlockBreakPreventionListener;
 import hoffmantv.runeCraft.skills.mining.MiningListener;
 import hoffmantv.runeCraft.skills.mining.PickaxeHoldListener;
@@ -40,6 +44,9 @@ public final class RuneCraft extends JavaPlugin {
         for (Player player : Bukkit.getOnlinePlayers()) {
             PlayerCombatStatsManager.loadPlayer(player);
         }
+        // Initialize the YAML file for storing fishing spot data.
+        FishingSpotsManager.init(this);
+
         // Initialize and schedule the leaderboard update.
         StatsLeaderboard statsLeaderboard = new StatsLeaderboard();
         Bukkit.getScheduler().runTaskTimer(this, statsLeaderboard::update, 0L, 100L);
@@ -59,12 +66,16 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MiningBlockBreakPreventionListener(), this);
         getServer().getPluginManager().registerEvents(new PickaxeHoldListener(), this);
         getServer().getPluginManager().registerEvents(new FishingListener(), this);
+        getServer().getPluginManager().registerEvents(new CookingListener(), this);
 
 
 
         // Register the test level up command.
         if (getCommand("testlevelup") != null) {
             getCommand("testlevelup").setExecutor(new TestLevelUpCommand());
+
+            getCommand("setfishingspot").setExecutor(new SetFishingSpotCommand());
+            getCommand("clearinv").setExecutor(new ClearInventoryCommand());
         }
         getLogger().info("RuneCraft plugin enabled.");
     }

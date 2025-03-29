@@ -5,27 +5,29 @@ import org.bukkit.Material;
 public class FishingRequirements {
 
     /**
-     * Returns a FishDrop based on the player's fishing level.
-     * Lower levels catch "Raw Shrimp"; mid-level may catch "Raw Trout";
-     * higher levels can catch "Raw Salmon".
+     * Returns a FishDrop based solely on the player's fishing level.
+     * Each fish type is locked behind a minimum fishing level and
+     * uses a custom OSRS-style name.
+     *
+     * Levels:
+     *   1 - 19: "Raw Shrimp"
+     *   20 - 39: "Raw Trout"
+     *   40 - 59: "Raw Salmon"
+     *   60+: "Pufferfish"
      */
     public static FishDrop getFishDrop(int fishingLevel) {
         if (fishingLevel < 20) {
+            // Use Material.COD as the base, but rename it "Raw Shrimp"
             return new FishDrop(Material.COD, "Raw Shrimp", 10, 1);
         } else if (fishingLevel < 40) {
-            // 30% chance to catch Trout, otherwise Shrimp.
-            if (Math.random() < 0.3) {
-                return new FishDrop(Material.COD, "Raw Trout", 20, 1);
-            } else {
-                return new FishDrop(Material.COD, "Raw Shrimp", 10, 1);
-            }
+            // Use Material.SALMON as the base, but rename it "Raw Trout"
+            return new FishDrop(Material.SALMON, "Raw Trout", 20, 1);
+        } else if (fishingLevel < 60) {
+            // Use Material.SALMON as the base, but rename it "Raw Salmon"
+            return new FishDrop(Material.SALMON, "Raw Salmon", 30, 1);
         } else {
-            // 50% chance Salmon, 50% chance Trout.
-            if (Math.random() < 0.5) {
-                return new FishDrop(Material.SALMON, "Raw Salmon", 30, 1);
-            } else {
-                return new FishDrop(Material.COD, "Raw Trout", 20, 1);
-            }
+            // Use Material.PUFFERFISH as the base, but rename it "Pufferfish"
+            return new FishDrop(Material.PUFFERFISH, "Pufferfish", 40, 1);
         }
     }
 

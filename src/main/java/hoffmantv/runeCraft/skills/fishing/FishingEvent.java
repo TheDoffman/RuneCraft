@@ -1,5 +1,6 @@
 package hoffmantv.runeCraft.skills.fishing;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
@@ -47,21 +48,30 @@ public class FishingEvent extends BukkitRunnable {
     }
 
     private void finishFishing() {
-        // Determine the fish drop based on the player's fishing level.
+        // Retrieve the player's fishing stats.
         FishingStats stats = FishingStatsManager.getStats(player);
         if (stats == null) return;
+        // Determine which fish to catch based on the player's fishing level.
         FishingRequirements.FishDrop drop = FishingRequirements.getFishDrop(stats.getLevel());
 
         // Award XP.
         stats.addExperience(drop.xpReward, player);
         stats.save(player);
 
-        // Drop the fish item.
+        // Create the custom fish item.
         ItemStack fishItem = new ItemStack(drop.dropMaterial, drop.amount);
         ItemMeta meta = fishItem.getItemMeta();
         meta.setDisplayName(drop.displayName);
+
+        // Create a unique, invisible string using zero-width spaces.
+        // (For example, three zero-width spaces; adjust as needed.)
+        String uniqueInvisible = "\u200B\u200B\u200B";
+        meta.setLore(java.util.Collections.singletonList(uniqueInvisible));
+
         fishItem.setItemMeta(meta);
-        waterBlock.getWorld().dropItem(waterBlock.getLocation().add(0.5, 1, 0.5), fishItem);
+
+        // Add the fish directly to the player's inventory.
+        player.getInventory().addItem(fishItem);
         player.sendMessage("You caught a " + drop.displayName + "!");
     }
 }

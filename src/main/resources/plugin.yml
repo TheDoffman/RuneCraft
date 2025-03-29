@@ -8,3 +8,11 @@ commands:
   testlevelup:
     description: Gives the player a list of available commands.
     usage: /testlevelup
+  setfishingspot:
+    description: Set a fishing spot at your current location.
+    usage: /setfishingspot
+    permission: rc.fishingspotset
+  clearinv:
+    description: Clears your inventory.
+    usage: /clearinv
+    permission: rc.clearinventory

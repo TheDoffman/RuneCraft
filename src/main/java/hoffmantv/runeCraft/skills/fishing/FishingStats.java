@@ -2,6 +2,7 @@ package hoffmantv.runeCraft.skills.fishing;
 
 import hoffmantv.runeCraft.RuneCraft;
 import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
+import hoffmantv.runeCraft.skills.SkillRewardUtils;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -57,7 +58,11 @@ public class FishingStats {
         while (this.xp >= xpForNextLevel() && level < 99) {
             this.xp -= xpForNextLevel();
             level++;
-            // Optionally trigger a fishing level-up effect.
+            // Trigger individual level-up effect for Strength.
+            SkillRewardUtils.triggerSkillRankUpEffect(player, "Fishing", this.level);
+            if (this.level % 5 == 0) {
+                SkillRewardUtils.triggerSkillRankUpEffect(player, "Fishing", this.level);
+            }
         }
         save(player);
     }
