@@ -5,7 +5,9 @@ import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStatsManager;
 import hoffmantv.runeCraft.skills.fishing.FishingStatsManager;
 import hoffmantv.runeCraft.skills.mining.MiningStatsManager;
+import hoffmantv.runeCraft.skills.smelting.SmeltingStatsManager;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStatsManager;
+import io.papermc.paper.event.server.ServerResourcesReloadedEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,5 +24,6 @@ public class PlayerJoinListener implements Listener {
         MiningStatsManager.loadPlayer(player);
         FishingStatsManager.loadPlayer(player);
         CookingStatsManager.loadPlayer(player);
+        SmeltingStatsManager.loadPlayer(player);
     }
 }

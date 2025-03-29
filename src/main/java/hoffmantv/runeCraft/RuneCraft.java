@@ -4,6 +4,7 @@ import hoffmantv.runeCraft.commands.ClearInventoryCommand;
 import hoffmantv.runeCraft.commands.SetFishingSpotCommand;
 import hoffmantv.runeCraft.mobs.MobDeathListener;
 import hoffmantv.runeCraft.skills.PlayerJoinListener;
+import hoffmantv.runeCraft.skills.SkillManager;
 import hoffmantv.runeCraft.skills.combat.*;
 import hoffmantv.runeCraft.mobs.MobSpawnListener;
 import hoffmantv.runeCraft.commands.TestLevelUpCommand;
@@ -34,23 +35,52 @@ public final class RuneCraft extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        // Load default configuration
-        initConfig();
-        // Initialize modules including turn-based combat movement restriction
-        initModules();
+
         // Initialize the YAML file for storing player skill data.
         PlayerSkillDataManager.setup(this);
         PlayerSkillDataManager.reloadData();
         for (Player player : Bukkit.getOnlinePlayers()) {
             PlayerCombatStatsManager.loadPlayer(player);
         }
-        // Initialize the YAML file for storing fishing spot data.
-        FishingSpotsManager.init(this);
+        
+        // Load default configuration
+        initConfigs();
+
+        // Load Listeners
+        initListeners();
+
+        // Load Commands
+        initCommands();
+
+        // Reloads all Skills.
+        SkillManager.reloadAllSkills();
+        getLogger().info("[RC] Skills Loaded.");
 
         // Initialize and schedule the leaderboard update.
         StatsLeaderboard statsLeaderboard = new StatsLeaderboard();
         Bukkit.getScheduler().runTaskTimer(this, statsLeaderboard::update, 0L, 100L);
-        // Register command executors and event listeners.
+
+        getLogger().info("RuneCraft plugin enabled.");
+    }
+
+    @Override
+    public void onDisable() {
+        //Saves all YMLs
+        initConfigs();
+
+        getLogger().info("[RC] Plugin disabled.");
+    }
+
+    private void initConfigs() {
+        saveDefaultConfig();
+        PlayerSkillDataManager.saveData(this);
+        FishingSpotsManager.init(this);
+    }
+
+    public static RuneCraft getInstance() {
+        return instance;
+    }
+    private void initListeners() {
         getServer().getPluginManager().registerEvents(new CombatChatListener(), this);
         getServer().getPluginManager().registerEvents(new MobSpawnListener(), this);
         getServer().getPluginManager().registerEvents(new MobDeathListener(), this);
@@ -67,42 +97,10 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PickaxeHoldListener(), this);
         getServer().getPluginManager().registerEvents(new FishingListener(), this);
         getServer().getPluginManager().registerEvents(new CookingListener(), this);
-
-
-
-        // Register the test level up command.
-        if (getCommand("testlevelup") != null) {
-            getCommand("testlevelup").setExecutor(new TestLevelUpCommand());
-
-            getCommand("setfishingspot").setExecutor(new SetFishingSpotCommand());
-            getCommand("clearinv").setExecutor(new ClearInventoryCommand());
-        }
-        getLogger().info("RuneCraft plugin enabled.");
     }
-
-    @Override
-    public void onDisable() {
-        // Save player skill data on disable
-        hoffmantv.runeCraft.skills.PlayerSkillDataManager.saveData(this);
-        getLogger().info("RuneCraft plugin disabled.");
-    }
-
-    private void initConfig() {
-        saveDefaultConfig();
-        getLogger().info("Configuration loaded.");
-    }
-
-    private void initModules() {
-        // Register combat commands and event listeners
-        if (getCommand("attack") != null) {
-            getCommand("attack").setExecutor(new CombatCommand());
-        }
-        getServer().getPluginManager().registerEvents(new CombatListener(this), this);
-        getServer().getPluginManager().registerEvents(new CombatMovementListener(), this);
-        getLogger().info("Combat module initialized.");
-    }
-
-    public static RuneCraft getInstance() {
-        return instance;
+    private void initCommands(){
+        getCommand("testlevelup").setExecutor(new TestLevelUpCommand());
+        getCommand("setfishingspot").setExecutor(new SetFishingSpotCommand());
+        getCommand("clearinv").setExecutor(new ClearInventoryCommand());
     }
 }
