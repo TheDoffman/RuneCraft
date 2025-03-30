@@ -16,3 +16,6 @@ commands:
     description: Clears your inventory.
     usage: /clearinv
     permission: rc.clearinventory
+  skills:
+    description: Displays your skill information.
+    usage: /skills
