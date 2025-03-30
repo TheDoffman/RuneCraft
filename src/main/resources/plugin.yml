@@ -19,3 +19,6 @@ commands:
   skills:
     description: Displays your skill information.
     usage: /skills
+  setmobspawn:
+    description: Spawns a mob at a specific location.
+    usage: /setmobspawn

@@ -2,7 +2,11 @@ package hoffmantv.runeCraft;
 
 import hoffmantv.runeCraft.commands.ClearInventoryCommand;
 import hoffmantv.runeCraft.commands.SetFishingSpotCommand;
+import hoffmantv.runeCraft.commands.SetMobSpawnCommand;
 import hoffmantv.runeCraft.commands.SkillsCommand;
+import hoffmantv.runeCraft.mobs.MobLevelListener;
+import hoffmantv.runeCraft.mobs.MobSpawnManager;
+import hoffmantv.runeCraft.mobs.MobSpawnRestrictionListener;
 import hoffmantv.runeCraft.mobs.TurnBasedCombatListener;
 import hoffmantv.runeCraft.skills.PlayerJoinListener;
 import hoffmantv.runeCraft.skills.SkillManager;
@@ -46,6 +50,9 @@ public final class RuneCraft extends JavaPlugin {
         // Load Commands
         initCommands();
 
+        //Loads mobSpawns.yml
+        MobSpawnManager.init(this);
+
         // Reloads all Skills.
         SkillManager.reloadAllSkills();
         getLogger().info("[RC] Skills Loaded.");
@@ -86,10 +93,13 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FishingListener(), this);
         getServer().getPluginManager().registerEvents(new CookingListener(), this);
         getServer().getPluginManager().registerEvents(new TurnBasedCombatListener(), this);
+        getServer().getPluginManager().registerEvents(new MobSpawnRestrictionListener(), this);
+        getServer().getPluginManager().registerEvents(new MobLevelListener(), this);
     }
     private void initCommands(){
         getCommand("setfishingspot").setExecutor(new SetFishingSpotCommand());
         getCommand("clearinv").setExecutor(new ClearInventoryCommand());
         getCommand("skills").setExecutor(new SkillsCommand());
+        getCommand("setmobspawn").setExecutor(new SetMobSpawnCommand());
     }
 }

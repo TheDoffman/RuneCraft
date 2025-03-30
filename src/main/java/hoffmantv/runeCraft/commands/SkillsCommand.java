@@ -1,6 +1,5 @@
 package hoffmantv.runeCraft.commands;
 
-import hoffmantv.runeCraft.skills.combat.PlayerCombatStatsManager;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStatsManager;
 import hoffmantv.runeCraft.skills.fishing.FishingStatsManager;
@@ -48,8 +47,6 @@ public class SkillsCommand implements CommandExecutor {
         // We'll use custom icons:
         // Combat: IRON_SWORD, Woodcutting: WOODEN_AXE, Firemaking: FLINT_AND_STEEL,
         // Mining: IRON_PICKAXE, Fishing: FISHING_ROD, Cooking: CAKE, Smelting: FURNACE.
-        inv.setItem(0, createSkillItem("Combat", Material.IRON_SWORD,
-                getSkillInfo(PlayerCombatStatsManager.getStats(player), combatMultiplier)));
         inv.setItem(1, createSkillItem("Woodcutting", Material.WOODEN_AXE,
                 getSkillInfo(WoodcuttingStatsManager.getStats(player), woodcuttingMultiplier)));
         inv.setItem(2, createSkillItem("Firemaking", Material.FLINT_AND_STEEL,

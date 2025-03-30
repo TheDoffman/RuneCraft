@@ -1,8 +1,5 @@
 package hoffmantv.runeCraft.scoreboard;
 
-
-import hoffmantv.runeCraft.skills.combat.CombatStats;
-import hoffmantv.runeCraft.skills.combat.PlayerCombatStatsManager;
 import hoffmantv.runeCraft.skills.cooking.CookingStats;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStats;
@@ -45,32 +42,23 @@ public class StatsLeaderboard {
 
         // Get a list of online players sorted by combat rank (descending).
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-        players.sort(Comparator.comparingInt(p -> -getCombatRank(p)));
 
         int score = 99;
         int uniqueCounter = 0;
         for (Player player : players) {
-            CombatStats combatStats = PlayerCombatStatsManager.getStats(player);
             WoodcuttingStats woodStats = WoodcuttingStatsManager.getStats(player);
             FiremakingStats fireStats = FiremakingStatsManager.getStats(player);
             MiningStats miningStats = MiningStatsManager.getStats(player);
             FishingStats fishingStats = FishingStatsManager.getStats(player);
             CookingStats cookingStats = CookingStatsManager.getStats(player);
-            if (combatStats == null || woodStats == null || fireStats == null ||
+            if (woodStats == null || fireStats == null ||
                     miningStats == null || fishingStats == null || cookingStats == null) continue;
 
             // Line 1: Player's name.
-            String line1 = ChatColor.AQUA + player.getName() + getInvisible(uniqueCounter++);
+            String line1 = "             " + ChatColor.AQUA + player.getName() + getInvisible(uniqueCounter++);
             objective.getScore(line1).setScore(score--);
 
-            // Line 2: Combat Rank.
-            String line2 = ChatColor.GRAY + "C: " + combatStats.getCombatLevel() + getInvisible(uniqueCounter++);
-            objective.getScore(line2).setScore(score--);
-
             // Build individual skill strings with icons.
-            String attack = ChatColor.GREEN + "⚔ " + combatStats.getAttackLevel();
-            String defence = ChatColor.YELLOW + "🛡 " + combatStats.getDefenceLevel();
-            String strength = ChatColor.LIGHT_PURPLE + "💪 " + combatStats.getStrengthLevel();
             String woodcutting = ChatColor.GOLD + "🌳 " + woodStats.getLevel();
             String firemaking = ChatColor.RED + "🔥 " + fireStats.getLevel();
             String mining = ChatColor.DARK_AQUA + "⚒ " + miningStats.getLevel();
@@ -79,9 +67,6 @@ public class StatsLeaderboard {
 
             // Group the skills into rows of 4.
             ArrayList<String> skills = new ArrayList<>();
-            skills.add(attack);
-            skills.add(defence);
-            skills.add(strength);
             skills.add(woodcutting);
             skills.add(firemaking);
             skills.add(mining);
@@ -127,12 +112,6 @@ public class StatsLeaderboard {
             sb.append(ChatColor.COLOR_CHAR).append("r");
         }
         return sb.toString();
-    }
-
-    // Helper method: get a player's combat rank.
-    private int getCombatRank(Player player) {
-        CombatStats stats = PlayerCombatStatsManager.getStats(player);
-        return stats != null ? stats.getCombatLevel() : 0;
     }
 
     public Scoreboard getScoreboard() {
