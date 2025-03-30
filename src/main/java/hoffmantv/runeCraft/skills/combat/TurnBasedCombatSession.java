@@ -1,8 +1,14 @@
-package hoffmantv.runeCraft.mobs;
+package hoffmantv.runeCraft.skills.combat;
 
 import hoffmantv.runeCraft.RuneCraft;
+import hoffmantv.runeCraft.mobs.DamageNumberUtil;
+import hoffmantv.runeCraft.mobs.MobLevelData;
 import hoffmantv.runeCraft.skills.attack.AttackStats;
 import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
+import hoffmantv.runeCraft.skills.defence.DefenceStats;
+import hoffmantv.runeCraft.skills.defence.DefenceStatsManager;
+import hoffmantv.runeCraft.skills.strength.StrengthStats;
+import hoffmantv.runeCraft.skills.strength.StrengthStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarStyle;
@@ -82,6 +88,18 @@ public class TurnBasedCombatSession extends BukkitRunnable {
             player.sendMessage(ChatColor.RED + "Attack stats not loaded!");
         }
 
+        StrengthStats strengthStats = StrengthStatsManager.getStats(player);
+        if (strengthStats != null) {
+            strengthStats.addExperience(damage, player);
+        } else {
+            player.sendMessage(ChatColor.RED + "Strength stats not loaded!");
+        }
+        DefenceStats defenceStats = DefenceStatsManager.getStats(player);
+        if (defenceStats != null) {
+            defenceStats.addExperience(damage, player);
+        } else {
+            player.sendMessage(ChatColor.RED + "Defence stats not loaded!");
+        }
         if (mob.getHealth() <= 0) {
             player.sendMessage(ChatColor.GOLD + "You have defeated the mob!");
             endCombat();
@@ -101,16 +119,60 @@ public class TurnBasedCombatSession extends BukkitRunnable {
         }
     }
 
-    // Placeholder: Calculate player's damage.
     private int calculatePlayerDamage() {
-        // For example: Damage between 5 and 9.
-        return 5 + (int)(Math.random() * 5);
+        // Base damage between 5 and 9.
+        int baseDamage = 5 + (int)(Math.random() * 5);
+
+        // Retrieve the player's combat level.
+        int playerCombat = CombatLevelCalculator.getCombatLevel(player);
+
+        // Retrieve the mob's level from its metadata.
+        int mobLevel = 1; // Default in case of missing metadata.
+        if (mob.hasMetadata("mobLevelData") && !mob.getMetadata("mobLevelData").isEmpty()) {
+            Object metaValue = mob.getMetadata("mobLevelData").get(0).value();
+            if (metaValue instanceof MobLevelData) {
+                mobLevel = ((MobLevelData) metaValue).getLevel();
+            }
+        }
+
+        // If the mob's level is higher than the player's combat level, scale down the damage.
+        if (mobLevel > playerCombat) {
+            double ratio = (double) playerCombat / mobLevel;
+            baseDamage = (int) (baseDamage * ratio);
+            if (baseDamage < 1) {
+                baseDamage = 1; // Ensure minimum damage is at least 1.
+            }
+        }
+
+        return baseDamage;
     }
 
-    // Placeholder: Calculate mob's damage.
     private int calculateMobDamage() {
-        // For example: Damage between 3 and 6.
-        return 3 + (int)(Math.random() * 4);
+        // Base damage between 3 and 6.
+        int baseDamage = 3 + (int)(Math.random() * 4);
+
+        // Retrieve the player's overall combat level.
+        int playerCombat = CombatLevelCalculator.getCombatLevel(player);
+
+        // Retrieve the mob's level from its metadata.
+        int mobLevel = 1; // Default value if metadata is missing.
+        if (mob.hasMetadata("mobLevelData") && !mob.getMetadata("mobLevelData").isEmpty()) {
+            Object metaValue = mob.getMetadata("mobLevelData").get(0).value();
+            if (metaValue instanceof MobLevelData) {
+                mobLevel = ((MobLevelData) metaValue).getLevel();
+            }
+        }
+
+        // Calculate a ratio: if mob's level is higher than the player's, ratio > 1 increases damage;
+        // if lower, ratio < 1 decreases damage.
+        double ratio = (double) mobLevel / playerCombat;
+        baseDamage = (int) (baseDamage * ratio);
+
+        // Ensure minimum damage is at least 1.
+        if (baseDamage < 1) {
+            baseDamage = 1;
+        }
+        return baseDamage;
     }
 
     private void updateBossBar() {

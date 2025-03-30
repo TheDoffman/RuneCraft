@@ -2,10 +2,12 @@ package hoffmantv.runeCraft.skills;
 
 import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
+import hoffmantv.runeCraft.skills.defence.DefenceStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStatsManager;
 import hoffmantv.runeCraft.skills.fishing.FishingStatsManager;
 import hoffmantv.runeCraft.skills.mining.MiningStatsManager;
 import hoffmantv.runeCraft.skills.smelting.SmeltingStatsManager;
+import hoffmantv.runeCraft.skills.strength.StrengthStatsManager;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStatsManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,5 +26,8 @@ public class PlayerJoinListener implements Listener {
         CookingStatsManager.loadPlayer(player);
         SmeltingStatsManager.loadPlayer(player);
         AttackStatsManager.loadPlayer(player);
+        StrengthStatsManager.loadPlayer(player);
+        DefenceStatsManager.loadPlayer(player);
+
     }
 }

@@ -2,6 +2,7 @@ package hoffmantv.runeCraft.skills.smelting;
 
 import hoffmantv.runeCraft.RuneCraft;
 import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
+import hoffmantv.runeCraft.skills.SkillRewardUtils;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -81,7 +82,11 @@ public class SmeltingStats {
         while (this.xp >= xpForNextLevel() && level < 99) {
             this.xp -= xpForNextLevel();
             level++;
-            // Optionally trigger a smelting level-up effect here.
+            // Trigger individual level-up effect for Strength.
+            SkillRewardUtils.triggerSkillRankUpEffect(player, "Smelting", this.level);
+            if (this.level % 5 == 0) {
+                SkillRewardUtils.triggerSkillRankUpEffect(player, "Smelting", this.level);
+            }
         }
         save(player);
     }

@@ -7,12 +7,14 @@ import hoffmantv.runeCraft.commands.SkillsCommand;
 import hoffmantv.runeCraft.mobs.MobLevelListener;
 import hoffmantv.runeCraft.mobs.MobSpawnManager;
 import hoffmantv.runeCraft.mobs.MobSpawnRestrictionListener;
-import hoffmantv.runeCraft.mobs.TurnBasedCombatListener;
+import hoffmantv.runeCraft.skills.combat.TurnBasedCombatListener;
 import hoffmantv.runeCraft.skills.PlayerJoinListener;
 import hoffmantv.runeCraft.skills.SkillManager;
 import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
 import hoffmantv.runeCraft.scoreboard.StatsLeaderboard;
+import hoffmantv.runeCraft.skills.combat.CombatLevelNameUpdater;
 import hoffmantv.runeCraft.skills.cooking.CookingListener;
+import hoffmantv.runeCraft.skills.defence.ArmorEquipListener;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingListener;
 import hoffmantv.runeCraft.skills.firemaking.LogPlacePreventionListener;
 import hoffmantv.runeCraft.skills.fishing.FishingListener;
@@ -20,6 +22,7 @@ import hoffmantv.runeCraft.skills.fishing.FishingSpotsManager;
 import hoffmantv.runeCraft.skills.mining.MiningBlockBreakPreventionListener;
 import hoffmantv.runeCraft.skills.mining.MiningListener;
 import hoffmantv.runeCraft.skills.mining.PickaxeHoldListener;
+import hoffmantv.runeCraft.skills.strength.SwordHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.AxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingListener;
 import org.bukkit.Bukkit;
@@ -52,6 +55,9 @@ public final class RuneCraft extends JavaPlugin {
 
         //Loads mobSpawns.yml
         MobSpawnManager.init(this);
+
+        // Player Combat LVL
+        CombatLevelNameUpdater.startUpdating();
 
         // Reloads all Skills.
         SkillManager.reloadAllSkills();
@@ -95,6 +101,8 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TurnBasedCombatListener(), this);
         getServer().getPluginManager().registerEvents(new MobSpawnRestrictionListener(), this);
         getServer().getPluginManager().registerEvents(new MobLevelListener(), this);
+        getServer().getPluginManager().registerEvents(new SwordHoldListener(), this);
+        getServer().getPluginManager().registerEvents(new ArmorEquipListener(), this);
     }
     private void initCommands(){
         getCommand("setfishingspot").setExecutor(new SetFishingSpotCommand());

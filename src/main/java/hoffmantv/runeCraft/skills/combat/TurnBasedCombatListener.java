@@ -1,4 +1,4 @@
-package hoffmantv.runeCraft.mobs;
+package hoffmantv.runeCraft.skills.combat;
 
 import hoffmantv.runeCraft.RuneCraft;
 import org.bukkit.ChatColor;

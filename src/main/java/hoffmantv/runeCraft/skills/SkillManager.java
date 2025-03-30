@@ -1,6 +1,8 @@
 package hoffmantv.runeCraft.skills;
 
 import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
+import hoffmantv.runeCraft.skills.defence.DefenceStatsManager;
+import hoffmantv.runeCraft.skills.strength.StrengthStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStatsManager;
@@ -14,20 +16,15 @@ public class SkillManager {
 
     public static void reloadAllSkills() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            // Reload Woodcutting Stats
             WoodcuttingStatsManager.loadPlayer(player);
-            // Reload Firemaking Stats
             FiremakingStatsManager.loadPlayer(player);
-            // Reload Mining Stats
             MiningStatsManager.loadPlayer(player);
-            // Reload Fishing Stats
             FishingStatsManager.loadPlayer(player);
-            // Reload Cooking Stats
             CookingStatsManager.loadPlayer(player);
-            // Reload Smelting Stats
             SmeltingStatsManager.loadPlayer(player);
-            // Reload Attack Stats
             AttackStatsManager.loadPlayer(player);
+            StrengthStatsManager.loadPlayer(player);
+            DefenceStatsManager.loadPlayer(player);
         }
     }
 }
