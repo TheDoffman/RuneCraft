@@ -1,5 +1,6 @@
 package hoffmantv.runeCraft.skills;
 
+import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStatsManager;
@@ -25,6 +26,8 @@ public class SkillManager {
             CookingStatsManager.loadPlayer(player);
             // Reload Smelting Stats
             SmeltingStatsManager.loadPlayer(player);
+            // Reload Attack Stats
+            AttackStatsManager.loadPlayer(player);
         }
     }
 }

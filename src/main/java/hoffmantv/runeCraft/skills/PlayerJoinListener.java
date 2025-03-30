@@ -1,5 +1,6 @@
 package hoffmantv.runeCraft.skills;
 
+import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStatsManager;
 import hoffmantv.runeCraft.skills.fishing.FishingStatsManager;
@@ -22,5 +23,6 @@ public class PlayerJoinListener implements Listener {
         FishingStatsManager.loadPlayer(player);
         CookingStatsManager.loadPlayer(player);
         SmeltingStatsManager.loadPlayer(player);
+        AttackStatsManager.loadPlayer(player);
     }
 }

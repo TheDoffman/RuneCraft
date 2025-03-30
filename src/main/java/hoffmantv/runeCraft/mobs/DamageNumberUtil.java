@@ -9,14 +9,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class DamageNumberUtil {
 
-    /**
-     * Spawns an invisible ArmorStand to display the damage number.
-     * This version spawns the ArmorStand higher above the mob to avoid overlap with the mob's level name.
-     *
-     * @param target The entity that received damage.
-     * @param damage The amount of damage dealt.
-     * @param plugin The main plugin instance.
-     */
     public static void spawnDamageNumber(LivingEntity target, int damage, Plugin plugin) {
         // Spawn the ArmorStand at an offset: 1.5 blocks to the side and 2 blocks above the mob's head.
         Location loc = target.getLocation().clone().add(1.5, target.getHeight() + 2, 0);
