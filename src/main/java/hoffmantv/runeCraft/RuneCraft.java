@@ -19,10 +19,10 @@ import hoffmantv.runeCraft.skills.fishing.FishingSpotsManager;
 import hoffmantv.runeCraft.skills.mining.MiningBlockBreakPreventionListener;
 import hoffmantv.runeCraft.skills.mining.MiningListener;
 import hoffmantv.runeCraft.skills.mining.PickaxeHoldListener;
+import hoffmantv.runeCraft.skills.smelting.SmeltingListener;
 import hoffmantv.runeCraft.skills.strength.SwordHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.AxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingListener;
-import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -96,6 +96,7 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CookingListener(), this);
         getServer().getPluginManager().registerEvents(new TurnBasedCombatListener(), this);
         getServer().getPluginManager().registerEvents(new MobSpawnRestrictionListener(), this);
+        getServer().getPluginManager().registerEvents(new SmeltingListener(), this);
         getServer().getPluginManager().registerEvents(new MobLevelListener(), this);
         getServer().getPluginManager().registerEvents(new SwordHoldListener(), this);
         getServer().getPluginManager().registerEvents(new ArmorEquipListener(), this);

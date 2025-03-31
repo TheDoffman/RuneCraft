@@ -10,60 +10,66 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SmeltingListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        // Process only right-click block events.
-        if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) return;
+        // Only process right-click block events.
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
-        Player player = event.getPlayer();
         Block clickedBlock = event.getClickedBlock();
         if (clickedBlock == null) return;
 
         // Check that the clicked block is a furnace or blast furnace.
-        Material blockType = clickedBlock.getType();
-        if (blockType != Material.FURNACE && blockType != Material.BLAST_FURNACE) {
+        if (clickedBlock.getType() != Material.FURNACE && clickedBlock.getType() != Material.BLAST_FURNACE)
             return;
-        }
 
-        // Check that the player is holding a smeltable item.
+        Player player = event.getPlayer();
         ItemStack heldItem = player.getInventory().getItemInMainHand();
-        if (heldItem == null || !isSmeltable(heldItem.getType())) {
-            player.sendMessage(ChatColor.RED + "You must hold a smeltable item (e.g., IRON_ORE or GOLD_ORE) to use the furnace.");
-            return;
-        }
-        Material rawMaterial = heldItem.getType();
+        if (heldItem == null) return;
 
-        // Retrieve the player's smelting stats.
-        SmeltingStats stats = SmeltingStats.load(player); // Alternatively, use a SmeltingStatsManager.
+        Material rawMaterial = heldItem.getType();
+        // Check if the item is smeltable using your requirements class.
+        int requiredLevel = SmeltingRequirements.getRequiredLevel(rawMaterial);
+        SmeltingStats stats = SmeltingStatsManager.getStats(player);
         if (stats == null) {
             player.sendMessage(ChatColor.RED + "Your smelting stats are not loaded.");
             return;
         }
-        int playerSmeltLevel = stats.getLevel();
-        int requiredLevel = SmeltingRequirements.getRequiredLevel(rawMaterial);
-        if (playerSmeltLevel < requiredLevel) {
-            player.sendMessage(ChatColor.RED + "Your smelting level (" + playerSmeltLevel +
+        if (stats.getLevel() < requiredLevel) {
+            player.sendMessage(ChatColor.RED + "Your smelting level (" + stats.getLevel() +
                     ") is too low to smelt this item. Required: " + requiredLevel);
             return;
         }
 
         // Cancel default furnace interaction.
         event.setCancelled(true);
-        player.sendMessage(ChatColor.GRAY + "You insert the item into the furnace...");
+        player.sendMessage(ChatColor.GRAY + "You insert the ore into the furnace...");
+
+        // Capture the raw item's custom display name (if any).
+        String rawDisplayName = null;
+        ItemMeta rawMeta = heldItem.getItemMeta();
+        if (rawMeta != null && rawMeta.hasDisplayName()) {
+            rawDisplayName = rawMeta.getDisplayName();
+        }
+        final String finalRawDisplayName = rawDisplayName; // Mark as final for inner class use
 
         // Remove one raw item from the player's hand.
-        int amount = heldItem.getAmount();
-        heldItem.setAmount(amount - 1);
+        heldItem.setAmount(heldItem.getAmount() - 1);
 
-        // Schedule the smelting process after a delay (simulate smelting time).
+        // Calculate dynamic smelting time.
+        int baseTime = 100;  // Base time in ticks (e.g., 100 ticks = 5 seconds)
+        int bonusReduction = stats.getLevel() / 2; // Example: reduce time as level increases.
+        int smeltingTime = Math.max(40, baseTime - bonusReduction); // Minimum 40 ticks (2 seconds)
+
+        // Schedule the smelting process after the calculated delay.
         new BukkitRunnable() {
             @Override
             public void run() {
-                // Get the smelted result from SmeltingRequirements.
+                // Get the smelted result from your SmeltingRequirements.
                 Material result = SmeltingRequirements.getSmeltedResult(rawMaterial);
                 if (result == null) {
                     player.sendMessage(ChatColor.RED + "This item cannot be smelted.");
@@ -71,30 +77,28 @@ public class SmeltingListener implements Listener {
                 }
                 // Create the smelted item.
                 ItemStack smeltedItem = new ItemStack(result, 1);
-                // Optionally, you could add a custom display name here.
+                ItemMeta meta = smeltedItem.getItemMeta();
+                String newName;
+                // Use the raw display name (if available) and replace "Ore" with "Bar"
+                if (finalRawDisplayName != null) {
+                    newName = finalRawDisplayName.replace("Ore", "Bar");
+                } else {
+                    // Otherwise, use the default result name and replace _ORE with _BAR.
+                    newName = result.name().replace("_ORE", "_BAR");
+                    newName = ChatColor.GREEN + newName;
+                }
+                meta.setDisplayName(newName);
+                smeltedItem.setItemMeta(meta);
 
                 // Add the smelted item to the player's inventory.
                 player.getInventory().addItem(smeltedItem);
-                player.sendMessage(ChatColor.GREEN + "The item has been smelted into " + result.name() + "!");
+                player.sendMessage(ChatColor.GREEN + "You smelt the ore into " + newName + "!");
 
                 // Award smelting XP.
                 double xpReward = SmeltingRequirements.getXpReward(rawMaterial);
                 stats.addExperience(xpReward, player);
                 stats.save(player);
             }
-        }.runTaskLater(RuneCraft.getInstance(), 60L); // Delay of 60 ticks (3 seconds)
-    }
-
-    // Helper method: check if the material is smeltable.
-    private boolean isSmeltable(Material material) {
-        switch (material) {
-            case IRON_ORE:
-            case GOLD_ORE:
-            case NETHER_QUARTZ_ORE:
-                return true;
-            // Optionally add more smeltable items here.
-            default:
-                return false;
-        }
+        }.runTaskLater(RuneCraft.getInstance(), smeltingTime);
     }
 }
