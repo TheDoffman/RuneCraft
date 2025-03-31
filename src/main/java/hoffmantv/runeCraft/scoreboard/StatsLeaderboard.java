@@ -1,7 +1,13 @@
 package hoffmantv.runeCraft.scoreboard;
 
+import hoffmantv.runeCraft.skills.attack.AttackStats;
+import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
 import hoffmantv.runeCraft.skills.cooking.CookingStats;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
+import hoffmantv.runeCraft.skills.defence.DefenceStats;
+import hoffmantv.runeCraft.skills.defence.DefenceStatsManager;
+import hoffmantv.runeCraft.skills.strength.StrengthStats;
+import hoffmantv.runeCraft.skills.strength.StrengthStatsManager;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStats;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStats;
@@ -51,6 +57,9 @@ public class StatsLeaderboard {
             MiningStats miningStats = MiningStatsManager.getStats(player);
             FishingStats fishingStats = FishingStatsManager.getStats(player);
             CookingStats cookingStats = CookingStatsManager.getStats(player);
+            DefenceStats defenceStats = DefenceStatsManager.getStats(player);
+            StrengthStats strengthStats = StrengthStatsManager.getStats(player);
+            AttackStats attackStats = AttackStatsManager.getStats(player);
             if (woodStats == null || fireStats == null ||
                     miningStats == null || fishingStats == null || cookingStats == null) continue;
 
@@ -64,6 +73,8 @@ public class StatsLeaderboard {
             String mining = ChatColor.DARK_AQUA + "⚒ " + miningStats.getLevel();
             String fishing = ChatColor.BLUE + "🎣 " + fishingStats.getLevel();
             String cooking = ChatColor.GOLD + "🍳 " + cookingStats.getLevel();
+            String defence = ChatColor.YELLOW + "🛡️ " + defenceStats.getLevel();
+            String attack = ChatColor.YELLOW + "" + ChatColor.WHITE + attackStats.getLevel();
 
             // Group the skills into rows of 4.
             ArrayList<String> skills = new ArrayList<>();
@@ -72,6 +83,8 @@ public class StatsLeaderboard {
             skills.add(mining);
             skills.add(fishing);
             skills.add(cooking);
+            skills.add(defence);
+            skills.add(attack);
 
             List<String> rows = new ArrayList<>();
             for (int i = 0; i < skills.size(); i += 4) {
