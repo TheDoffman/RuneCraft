@@ -5,9 +5,6 @@ api-version: '1.21'
 authors: [ HoffmanTV ]
 description: Brining all the best of RuneScape to Minecraft
 commands:
-  testlevelup:
-    description: Gives the player a list of available commands.
-    usage: /testlevelup
   setfishingspot:
     description: Set a fishing spot at your current location.
     usage: /setfishingspot
@@ -22,3 +19,6 @@ commands:
   setmobspawn:
     description: Spawns a mob at a specific location.
     usage: /setmobspawn
+  scoreboard:
+    description: Toggle the skills scoreboard on and off.
+    usage: /scoreboard

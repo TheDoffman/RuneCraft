@@ -2,8 +2,7 @@ package hoffmantv.runeCraft.scoreboard;
 
 import hoffmantv.runeCraft.skills.attack.AttackStats;
 import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
-import hoffmantv.runeCraft.skills.cooking.CookingStats;
-import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
+import hoffmantv.runeCraft.skills.combat.CombatLevelCalculator;
 import hoffmantv.runeCraft.skills.defence.DefenceStats;
 import hoffmantv.runeCraft.skills.defence.DefenceStatsManager;
 import hoffmantv.runeCraft.skills.strength.StrengthStats;
@@ -16,13 +15,16 @@ import hoffmantv.runeCraft.skills.mining.MiningStats;
 import hoffmantv.runeCraft.skills.mining.MiningStatsManager;
 import hoffmantv.runeCraft.skills.fishing.FishingStats;
 import hoffmantv.runeCraft.skills.fishing.FishingStatsManager;
+import hoffmantv.runeCraft.skills.cooking.CookingStats;
+import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
+import hoffmantv.runeCraft.skills.smelting.SmeltingStats;
+import hoffmantv.runeCraft.skills.smelting.SmeltingStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class StatsLeaderboard {
@@ -30,13 +32,20 @@ public class StatsLeaderboard {
     private final Objective objective;
 
     public StatsLeaderboard() {
-        // Create a new scoreboard and set the header using the objective's display name.
+        // Create a new scoreboard and register a dummy objective for the sidebar.
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        objective = scoreboard.registerNewObjective("stats", "dummy", ChatColor.GOLD + "✦ Player Stats ✦");
+        objective = scoreboard.registerNewObjective("stats", "dummy", ChatColor.GOLD + "✦ Your Skills ✦");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
-    public void update() {
+    /**
+     * Updates the scoreboard with the given player's skill levels.
+     * Each skill is displayed on its own line, grouped into rows of 3,
+     * and at the bottom a centered line shows the total non-combat skill points.
+     *
+     * @param player The player whose skills will be displayed.
+     */
+    public void update(Player player) {
         // Clear existing entries.
         for (String entry : scoreboard.getEntries()) {
             scoreboard.resetScores(entry);
@@ -46,85 +55,103 @@ public class StatsLeaderboard {
         String footer = ChatColor.GOLD + "————————————";
         objective.getScore(footer + getInvisible(100)).setScore(0);
 
-        // Get a list of online players sorted by combat rank (descending).
-        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-
         int score = 99;
         int uniqueCounter = 0;
-        for (Player player : players) {
-            WoodcuttingStats woodStats = WoodcuttingStatsManager.getStats(player);
-            FiremakingStats fireStats = FiremakingStatsManager.getStats(player);
-            MiningStats miningStats = MiningStatsManager.getStats(player);
-            FishingStats fishingStats = FishingStatsManager.getStats(player);
-            CookingStats cookingStats = CookingStatsManager.getStats(player);
-            DefenceStats defenceStats = DefenceStatsManager.getStats(player);
-            StrengthStats strengthStats = StrengthStatsManager.getStats(player);
-            AttackStats attackStats = AttackStatsManager.getStats(player);
-            if (woodStats == null || fireStats == null ||
-                    miningStats == null || fishingStats == null || cookingStats == null) continue;
 
-            // Line 1: Player's name.
-            String line1 = "             " + ChatColor.AQUA + player.getName() + getInvisible(uniqueCounter++);
-            objective.getScore(line1).setScore(score--);
+        // Retrieve skill data.
+        AttackStats attackStats = AttackStatsManager.getStats(player);
+        DefenceStats defenceStats = DefenceStatsManager.getStats(player);
+        StrengthStats strengthStats = StrengthStatsManager.getStats(player);
+        WoodcuttingStats woodStats = WoodcuttingStatsManager.getStats(player);
+        FiremakingStats fireStats = FiremakingStatsManager.getStats(player);
+        MiningStats miningStats = MiningStatsManager.getStats(player);
+        FishingStats fishingStats = FishingStatsManager.getStats(player);
+        CookingStats cookingStats = CookingStatsManager.getStats(player);
+        SmeltingStats smeltingStats = SmeltingStatsManager.getStats(player);
 
-            // Build individual skill strings with icons.
-            String woodcutting = ChatColor.GOLD + "🌳 " + woodStats.getLevel();
-            String firemaking = ChatColor.RED + "🔥 " + fireStats.getLevel();
-            String mining = ChatColor.DARK_AQUA + "⚒ " + miningStats.getLevel();
-            String fishing = ChatColor.BLUE + "🎣 " + fishingStats.getLevel();
-            String cooking = ChatColor.GOLD + "🍳 " + cookingStats.getLevel();
-            String defence = ChatColor.YELLOW + "🛡️ " + defenceStats.getLevel();
-            String attack = ChatColor.YELLOW + "" + ChatColor.WHITE + attackStats.getLevel();
-
-            // Group the skills into rows of 4.
-            ArrayList<String> skills = new ArrayList<>();
-            skills.add(woodcutting);
-            skills.add(firemaking);
-            skills.add(mining);
-            skills.add(fishing);
-            skills.add(cooking);
-            skills.add(defence);
-            skills.add(attack);
-
-            List<String> rows = new ArrayList<>();
-            for (int i = 0; i < skills.size(); i += 4) {
-                StringBuilder row = new StringBuilder();
-                row.append(skills.get(i));
-                if (i + 1 < skills.size()) {
-                    row.append("    ").append(skills.get(i + 1));
-                }
-                if (i + 2 < skills.size()) {
-                    row.append("    ").append(skills.get(i + 2));
-                }
-                if (i + 3 < skills.size()) {
-                    row.append("    ").append(skills.get(i + 3));
-                }
-                rows.add(row.toString() + getInvisible(uniqueCounter++));
-            }
-            // Add each row to the scoreboard.
-            for (String row : rows) {
-                objective.getScore(row).setScore(score--);
-            }
-
-            // Add a blank separator between players.
-            if (score > 0) {
-                objective.getScore(ChatColor.RESET + " " + getInvisible(uniqueCounter++)).setScore(score--);
-            }
+        // Ensure all skills are loaded.
+        if (attackStats == null || defenceStats == null || strengthStats == null ||
+                woodStats == null || fireStats == null || miningStats == null ||
+                fishingStats == null || cookingStats == null || smeltingStats == null) {
+            return;
         }
 
-        // Update each player's scoreboard.
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setScoreboard(scoreboard);
+        // Optionally, display the player's name.
+        // String nameLine = ChatColor.AQUA + player.getName() + getInvisible(uniqueCounter++);
+        // objective.getScore(nameLine).setScore(score--);
+
+        // Display Combat Rank on a separate line.
+        String combatRankLine = ChatColor.GRAY + "Combat Rank: " + CombatLevelCalculator.getCombatLevel(player)
+                + getInvisible(uniqueCounter++);
+        objective.getScore(combatRankLine).setScore(score--);
+
+        // Build a list of skill entries using icons.
+        List<String> skillEntries = new ArrayList<>();
+        skillEntries.add(ChatColor.GREEN + "⚔ " + attackStats.getLevel());
+        skillEntries.add(ChatColor.YELLOW + "🛡 " + defenceStats.getLevel());
+        skillEntries.add(ChatColor.LIGHT_PURPLE + "💪 " + strengthStats.getLevel());
+        skillEntries.add(ChatColor.GOLD + "🌳 " + woodStats.getLevel());
+        skillEntries.add(ChatColor.RED + "🔥 " + fireStats.getLevel());
+        skillEntries.add(ChatColor.DARK_AQUA + "⛏ " + miningStats.getLevel());
+        skillEntries.add(ChatColor.BLUE + "🎣 " + fishingStats.getLevel());
+        skillEntries.add(ChatColor.LIGHT_PURPLE + "🍳 " + cookingStats.getLevel());
+        skillEntries.add(ChatColor.GRAY + "⚙ " + smeltingStats.getLevel());
+
+        // Group skill entries into rows of 3.
+        for (int i = 0; i < skillEntries.size(); i += 3) {
+            StringBuilder row = new StringBuilder();
+            row.append(skillEntries.get(i));
+            if (i + 1 < skillEntries.size()) {
+                row.append("    ").append(skillEntries.get(i + 1));
+            }
+            if (i + 2 < skillEntries.size()) {
+                row.append("    ").append(skillEntries.get(i + 2));
+            }
+            objective.getScore(row.toString() + getInvisible(uniqueCounter++)).setScore(score--);
         }
+
+        // Calculate total non-combat skill points (sum of Woodcutting, Firemaking, Mining, Fishing, Cooking, and Smelting).
+        int totalNonCombatPoints = woodStats.getLevel() + fireStats.getLevel() + miningStats.getLevel()
+                + fishingStats.getLevel() + cookingStats.getLevel() + smeltingStats.getLevel();
+        String totalSkillLine = centerText(ChatColor.GOLD + "Total: " + totalNonCombatPoints)
+                + getInvisible(uniqueCounter++);
+        objective.getScore(totalSkillLine).setScore(score--);
+
+        // Update the player's scoreboard.
+        player.setScoreboard(scoreboard);
     }
 
-    // Helper method: generate a string of invisible characters for uniqueness.
+    /**
+     * Generates a string of invisible characters (using Minecraft's color code character)
+     * to ensure each scoreboard entry is unique.
+     *
+     * @param count The number of invisible characters.
+     * @return The generated string.
+     */
     private String getInvisible(int count) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count; i++) {
             sb.append(ChatColor.COLOR_CHAR).append("r");
         }
         return sb.toString();
+    }
+
+    /**
+     * Centers the provided text by adding padding (simple approximation).
+     *
+     * @param text The text to center.
+     * @return The centered text.
+     */
+    private String centerText(String text) {
+        int targetWidth = 30; // Adjust as needed.
+        String plainText = text.replaceAll("§[0-9A-FK-OR]", "");
+        int textLength = plainText.length();
+        int spacesToAdd = (targetWidth - textLength) / 2;
+        StringBuilder padding = new StringBuilder();
+        for (int i = 0; i < spacesToAdd; i++) {
+            padding.append(" ");
+        }
+        return padding.toString() + text;
     }
 
     public Scoreboard getScoreboard() {

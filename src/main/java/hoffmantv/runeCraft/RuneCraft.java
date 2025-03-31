@@ -1,9 +1,6 @@
 package hoffmantv.runeCraft;
 
-import hoffmantv.runeCraft.commands.ClearInventoryCommand;
-import hoffmantv.runeCraft.commands.SetFishingSpotCommand;
-import hoffmantv.runeCraft.commands.SetMobSpawnCommand;
-import hoffmantv.runeCraft.commands.SkillsCommand;
+import hoffmantv.runeCraft.commands.*;
 import hoffmantv.runeCraft.mobs.MobLevelListener;
 import hoffmantv.runeCraft.mobs.MobSpawnManager;
 import hoffmantv.runeCraft.mobs.MobSpawnRestrictionListener;
@@ -65,7 +62,6 @@ public final class RuneCraft extends JavaPlugin {
 
         // Initialize and schedule the leaderboard update.
         StatsLeaderboard statsLeaderboard = new StatsLeaderboard();
-        Bukkit.getScheduler().runTaskTimer(this, statsLeaderboard::update, 0L, 100L);
 
         getLogger().info("RuneCraft plugin enabled.");
     }
@@ -109,5 +105,6 @@ public final class RuneCraft extends JavaPlugin {
         getCommand("clearinv").setExecutor(new ClearInventoryCommand());
         getCommand("skills").setExecutor(new SkillsCommand());
         getCommand("setmobspawn").setExecutor(new SetMobSpawnCommand());
+        getCommand("scoreboard").setExecutor(new ScoreboardToggleCommand());
     }
 }
