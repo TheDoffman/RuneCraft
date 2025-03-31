@@ -1,7 +1,5 @@
 package hoffmantv.runeCraft.skills.combat;
 
-import hoffmantv.runeCraft.RuneCraft;
-import hoffmantv.runeCraft.mobs.DamageNumberUtil;
 import hoffmantv.runeCraft.mobs.MobLevelData;
 import hoffmantv.runeCraft.skills.attack.AttackStats;
 import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
@@ -76,9 +74,6 @@ public class TurnBasedCombatSession extends BukkitRunnable {
         double mobHealth = mob.getHealth();
         mob.setHealth(Math.max(0, mobHealth - damage));
         player.sendMessage(ChatColor.GREEN + "You strike the mob for " + damage + " damage!");
-
-        // Display damage numbers.
-        DamageNumberUtil.spawnDamageNumber(mob, damage, RuneCraft.getInstance());
 
         // Award Attack XP.
         AttackStats attackStats = AttackStatsManager.getStats(player);
