@@ -1,9 +1,11 @@
 package hoffmantv.runeCraft.skills.smelting;
 
 import hoffmantv.runeCraft.RuneCraft;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -24,7 +26,8 @@ public class SmeltingListener implements Listener {
         if (clickedBlock == null) return;
 
         // Check that the clicked block is a furnace or blast furnace.
-        if (clickedBlock.getType() != Material.FURNACE && clickedBlock.getType() != Material.BLAST_FURNACE)
+        Material originalType = clickedBlock.getType();
+        if (originalType != Material.FURNACE && originalType != Material.BLAST_FURNACE)
             return;
 
         Player player = event.getPlayer();
@@ -32,7 +35,6 @@ public class SmeltingListener implements Listener {
         if (heldItem == null) return;
 
         Material rawMaterial = heldItem.getType();
-        // Check if the item is smeltable using your requirements class.
         int requiredLevel = SmeltingRequirements.getRequiredLevel(rawMaterial);
         SmeltingStats stats = SmeltingStatsManager.getStats(player);
         if (stats == null) {
@@ -49,13 +51,29 @@ public class SmeltingListener implements Listener {
         event.setCancelled(true);
         player.sendMessage(ChatColor.GRAY + "You insert the ore into the furnace...");
 
+        // Preserve the original furnace orientation.
+        Directional originalData = (Directional) clickedBlock.getBlockData();
+
+        // Change the furnace to its lit variant while preserving orientation.
+        Material litType = null;
+        if (originalType == Material.FURNACE) {
+            litType = Material.FURNACE;
+        } else if (originalType == Material.FURNACE) {
+            litType = Material.BLAST_FURNACE;
+        }
+        if (litType != null) {
+            Directional litData = (Directional) Bukkit.createBlockData(litType);
+            litData.setFacing(originalData.getFacing());
+            clickedBlock.setBlockData(litData);
+        }
+
         // Capture the raw item's custom display name (if any).
         String rawDisplayName = null;
         ItemMeta rawMeta = heldItem.getItemMeta();
         if (rawMeta != null && rawMeta.hasDisplayName()) {
             rawDisplayName = rawMeta.getDisplayName();
         }
-        final String finalRawDisplayName = rawDisplayName; // Mark as final for inner class use
+        final String finalRawDisplayName = rawDisplayName; // For inner class usage.
 
         // Remove one raw item from the player's hand.
         heldItem.setAmount(heldItem.getAmount() - 1);
@@ -65,11 +83,33 @@ public class SmeltingListener implements Listener {
         int bonusReduction = stats.getLevel() / 2; // Example: reduce time as level increases.
         int smeltingTime = Math.max(40, baseTime - bonusReduction); // Minimum 40 ticks (2 seconds)
 
+        // Optional: Spawn continuous furnace effects while smelting.
+        new BukkitRunnable() {
+            int effectTicks = 0;
+            @Override
+            public void run() {
+                if (effectTicks >= smeltingTime) {
+                    cancel();
+                    return;
+                }
+                clickedBlock.getWorld().spawnParticle(
+                        org.bukkit.Particle.SMOKE,
+                        clickedBlock.getLocation().add(0.5, 1, 0.5),
+                        5, 0.2, 0.2, 0.2, 0.05);
+                effectTicks += 10;
+            }
+        }.runTaskTimer(RuneCraft.getInstance(), 0L, 10L);
+
         // Schedule the smelting process after the calculated delay.
         new BukkitRunnable() {
             @Override
             public void run() {
-                // Get the smelted result from your SmeltingRequirements.
+                // Revert the furnace back to its original unlit state while preserving orientation.
+                Directional revertData = (Directional) Bukkit.createBlockData(originalType);
+                revertData.setFacing(originalData.getFacing());
+                clickedBlock.setBlockData(revertData);
+
+                // Get the smelted result.
                 Material result = SmeltingRequirements.getSmeltedResult(rawMaterial);
                 if (result == null) {
                     player.sendMessage(ChatColor.RED + "This item cannot be smelted.");
@@ -79,15 +119,17 @@ public class SmeltingListener implements Listener {
                 ItemStack smeltedItem = new ItemStack(result, 1);
                 ItemMeta meta = smeltedItem.getItemMeta();
                 String newName;
-                // Use the raw display name (if available) and replace "Ore" with "Bar"
                 if (finalRawDisplayName != null) {
                     newName = finalRawDisplayName.replace("Ore", "Bar");
                 } else {
-                    // Otherwise, use the default result name and replace _ORE with _BAR.
                     newName = result.name().replace("_ORE", "_BAR");
                     newName = ChatColor.GREEN + newName;
                 }
                 meta.setDisplayName(newName);
+                // If smelting coal, set custom model data for custom texture.
+                if (rawMaterial == Material.COAL) {
+                    meta.setCustomModelData(1);
+                }
                 smeltedItem.setItemMeta(meta);
 
                 // Add the smelted item to the player's inventory.
