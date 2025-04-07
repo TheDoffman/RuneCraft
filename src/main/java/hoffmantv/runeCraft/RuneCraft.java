@@ -4,6 +4,7 @@ import hoffmantv.runeCraft.commands.*;
 import hoffmantv.runeCraft.mobs.MobLevelListener;
 import hoffmantv.runeCraft.mobs.MobSpawnManager;
 import hoffmantv.runeCraft.mobs.MobSpawnRestrictionListener;
+import hoffmantv.runeCraft.skills.agility.AgilityObstacleListener;
 import hoffmantv.runeCraft.skills.combat.TurnBasedCombatListener;
 import hoffmantv.runeCraft.skills.PlayerJoinListener;
 import hoffmantv.runeCraft.skills.SkillManager;
@@ -100,6 +101,7 @@ public final class RuneCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MobLevelListener(), this);
         getServer().getPluginManager().registerEvents(new SwordHoldListener(), this);
         getServer().getPluginManager().registerEvents(new ArmorEquipListener(), this);
+        getServer().getPluginManager().registerEvents(new AgilityObstacleListener(), this);
     }
     private void initCommands(){
         getCommand("setfishingspot").setExecutor(new SetFishingSpotCommand());
@@ -107,5 +109,6 @@ public final class RuneCraft extends JavaPlugin {
         getCommand("skills").setExecutor(new SkillsCommand());
         getCommand("setmobspawn").setExecutor(new SetMobSpawnCommand());
         getCommand("scoreboard").setExecutor(new ScoreboardToggleCommand());
+        getCommand("generatecourse").setExecutor(new GenerateComplexCourseCommand());
     }
 }

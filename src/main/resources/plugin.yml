@@ -22,3 +22,6 @@ commands:
   scoreboard:
     description: Toggle the skills scoreboard on and off.
     usage: /scoreboard
+  generatecourse:
+    description: Generates an agility course in front of the player.
+    usage: /generatecourse
