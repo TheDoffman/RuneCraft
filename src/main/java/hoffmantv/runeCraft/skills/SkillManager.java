@@ -1,5 +1,6 @@
 package hoffmantv.runeCraft.skills;
 
+import hoffmantv.runeCraft.skills.agility.AgilityStatsManager;
 import hoffmantv.runeCraft.skills.attack.AttackStatsManager;
 import hoffmantv.runeCraft.skills.defence.DefenceStatsManager;
 import hoffmantv.runeCraft.skills.strength.StrengthStatsManager;
@@ -25,6 +26,7 @@ public class SkillManager {
             AttackStatsManager.loadPlayer(player);
             StrengthStatsManager.loadPlayer(player);
             DefenceStatsManager.loadPlayer(player);
+            AgilityStatsManager.unload(player);
         }
     }
 }

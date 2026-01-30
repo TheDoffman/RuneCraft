@@ -4,7 +4,6 @@ import hoffmantv.runeCraft.commands.*;
 import hoffmantv.runeCraft.mobs.MobLevelListener;
 import hoffmantv.runeCraft.mobs.MobSpawnManager;
 import hoffmantv.runeCraft.mobs.MobSpawnRestrictionListener;
-import hoffmantv.runeCraft.skills.agility.AgilityObstacleListener;
 import hoffmantv.runeCraft.skills.combat.TurnBasedCombatListener;
 import hoffmantv.runeCraft.skills.PlayerJoinListener;
 import hoffmantv.runeCraft.skills.SkillManager;
@@ -24,14 +23,20 @@ import hoffmantv.runeCraft.skills.smelting.SmeltingListener;
 import hoffmantv.runeCraft.skills.strength.SwordHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.AxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingListener;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.util.Objects;
 
 public final class RuneCraft extends JavaPlugin {
 
     private static RuneCraft instance;
     public static NamespacedKey getKey(String key) {
-        return new NamespacedKey(instance, key);
+        return new NamespacedKey(Objects.requireNonNull(instance, "RuneCraft instance not initialized"), key);
     }
 
     @Override
@@ -51,6 +56,19 @@ public final class RuneCraft extends JavaPlugin {
         // Load Commands
         initCommands();
 
+        // Start periodic skills leaderboard updates (every 5 seconds).
+        StatsLeaderboard statsLeaderboard = new StatsLeaderboard();
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                // Update the per-player scoreboard safely
+                try {
+                    statsLeaderboard.update(p);
+                } catch (Throwable t) {
+                    getLogger().warning("Failed updating scoreboard for " + p.getName() + ": " + t.getMessage());
+                }
+            }
+        }, 0L, 100L);
+
         //Loads mobSpawns.yml
         MobSpawnManager.init(this);
 
@@ -60,9 +78,6 @@ public final class RuneCraft extends JavaPlugin {
         // Reloads all Skills.
         SkillManager.reloadAllSkills();
         getLogger().info("[RC] Skills Loaded.");
-
-        // Initialize and schedule the leaderboard update.
-        StatsLeaderboard statsLeaderboard = new StatsLeaderboard();
 
         getLogger().info("RuneCraft plugin enabled.");
     }
@@ -85,30 +100,39 @@ public final class RuneCraft extends JavaPlugin {
         return instance;
     }
     private void initListeners() {
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
-        getServer().getPluginManager().registerEvents(new WoodcuttingListener(), this);
-        getServer().getPluginManager().registerEvents(new AxeHoldListener(), this);
-        getServer().getPluginManager().registerEvents(new FiremakingListener(), this);
-        getServer().getPluginManager().registerEvents(new LogPlacePreventionListener(), this);
-        getServer().getPluginManager().registerEvents(new MiningListener(), this);
-        getServer().getPluginManager().registerEvents(new MiningBlockBreakPreventionListener(), this);
-        getServer().getPluginManager().registerEvents(new PickaxeHoldListener(), this);
-        getServer().getPluginManager().registerEvents(new FishingListener(), this);
-        getServer().getPluginManager().registerEvents(new CookingListener(), this);
-        getServer().getPluginManager().registerEvents(new TurnBasedCombatListener(), this);
-        getServer().getPluginManager().registerEvents(new MobSpawnRestrictionListener(), this);
-        getServer().getPluginManager().registerEvents(new SmeltingListener(), this);
-        getServer().getPluginManager().registerEvents(new MobLevelListener(), this);
-        getServer().getPluginManager().registerEvents(new SwordHoldListener(), this);
-        getServer().getPluginManager().registerEvents(new ArmorEquipListener(), this);
-        getServer().getPluginManager().registerEvents(new AgilityObstacleListener(), this);
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new PlayerJoinListener(), this);
+        pm.registerEvents(new WoodcuttingListener(), this);
+        pm.registerEvents(new AxeHoldListener(), this);
+        pm.registerEvents(new FiremakingListener(), this);
+        pm.registerEvents(new LogPlacePreventionListener(), this);
+        pm.registerEvents(new MiningListener(), this);
+        pm.registerEvents(new MiningBlockBreakPreventionListener(), this);
+        pm.registerEvents(new PickaxeHoldListener(), this);
+        pm.registerEvents(new FishingListener(), this);
+        pm.registerEvents(new CookingListener(), this);
+        pm.registerEvents(new TurnBasedCombatListener(), this);
+        pm.registerEvents(new MobSpawnRestrictionListener(), this);
+        pm.registerEvents(new SmeltingListener(), this);
+        pm.registerEvents(new MobLevelListener(), this);
+        pm.registerEvents(new SwordHoldListener(), this);
+        pm.registerEvents(new ArmorEquipListener(), this);
     }
     private void initCommands(){
-        getCommand("setfishingspot").setExecutor(new SetFishingSpotCommand());
-        getCommand("clearinv").setExecutor(new ClearInventoryCommand());
-        getCommand("skills").setExecutor(new SkillsCommand());
-        getCommand("setmobspawn").setExecutor(new SetMobSpawnCommand());
-        getCommand("scoreboard").setExecutor(new ScoreboardToggleCommand());
-        getCommand("generatecourse").setExecutor(new GenerateComplexCourseCommand());
+        registerCommand("setfishingspot", new SetFishingSpotCommand());
+        registerCommand("clearinv", new ClearInventoryCommand());
+        registerCommand("skills", new SkillsCommand());
+        registerCommand("setmobspawn", new SetMobSpawnCommand());
+        registerCommand("scoreboard", new ScoreboardToggleCommand());
+        registerCommand("generatecourse", new GenerateComplexCourseCommand());
+    }
+
+    private void registerCommand(String name, CommandExecutor executor) {
+        PluginCommand cmd = getCommand(name);
+        if (cmd != null) {
+            cmd.setExecutor(executor);
+        } else {
+            getLogger().warning("Command '/" + name + "' is not defined in plugin.yml");
+        }
     }
 }
