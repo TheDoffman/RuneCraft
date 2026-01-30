@@ -4,18 +4,17 @@ public class MobLevelData {
     private final int level;
     private final double healthMultiplier;
     private final double damageMultiplier;
+    private final double armorMultiplier;
+    private final boolean elite;
 
-    public MobLevelData(int level) {
+    public MobLevelData(int level, double healthMultiplier, double damageMultiplier, double armorMultiplier, boolean elite) {
         // Clamp level between 1 and 99.
         int clampedLevel = Math.min(99, Math.max(1, level));
         this.level = clampedLevel;
-        // Example formulas:
-        // Health multiplier: base 1.0 + (level / 50.0).
-        // For level 1: 1.02, for level 99: 1.0 + 99/50 ≈ 2.98.
-        this.healthMultiplier = 1.0 + (this.level / 50.0);
-        // Damage multiplier: base 1.0 + (level / 100.0).
-        // For level 1: 1.01, for level 99: 1.99.
-        this.damageMultiplier = 1.0 + (this.level / 100.0);
+        this.healthMultiplier = healthMultiplier;
+        this.damageMultiplier = damageMultiplier;
+        this.armorMultiplier = armorMultiplier;
+        this.elite = elite;
     }
 
     public int getLevel() {
@@ -30,9 +29,19 @@ public class MobLevelData {
         return damageMultiplier;
     }
 
+    public double getArmorMultiplier() {
+        return armorMultiplier;
+    }
+
+    public boolean isElite() {
+        return elite;
+    }
+
     @Override
     public String toString() {
         return "Level " + level + " (Health x" + String.format("%.2f", healthMultiplier)
-                + ", Damage x" + String.format("%.2f", damageMultiplier) + ")";
+                + ", Damage x" + String.format("%.2f", damageMultiplier)
+                + ", Armor x" + String.format("%.2f", armorMultiplier)
+                + ", Elite " + elite + ")";
     }
 }

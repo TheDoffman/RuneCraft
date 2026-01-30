@@ -1,1 +1,38 @@
 ## RuneCraft Configuration ##
+
+mobLevels:
+  usePlayerScaling: true
+  playerRange: 24
+  playerVariance: 6
+  biomeBonus:
+    NETHER_WASTES: 10
+    SOUL_SAND_VALLEY: 15
+    CRIMSON_FOREST: 12
+    WARPED_FOREST: 12
+  elite:
+    chance: 0.03
+    healthMultiplier: 1.5
+    damageMultiplier: 1.3
+    armorMultiplier: 1.2
+  tiers:
+    low: 9
+    mid: 29
+    high: 59
+  highLevelDensity:
+    threshold: 50
+    radius: 16
+    maxCount: 5
+  mobDefaults:
+    minLevel: 1
+    maxLevel: 99
+    healthMultiplierPerLevel: 0.02
+    damageMultiplierPerLevel: 0.01
+    armorMultiplierPerLevel: 0.005
+  mobOverrides:
+    COW:
+      fixedLevel: 10
+    CHICKEN:
+      fixedLevel: 3
+    ZOMBIE:
+      minLevel: 5
+      maxLevel: 30

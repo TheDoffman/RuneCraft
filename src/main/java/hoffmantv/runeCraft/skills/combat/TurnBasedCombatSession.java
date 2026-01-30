@@ -75,6 +75,7 @@ public class TurnBasedCombatSession extends BukkitRunnable {
 
     private void performPlayerTurn() {
         int damage = calculatePlayerDamage();
+        double xpMultiplier = getMobXpMultiplier();
 
         // Apply damage to the mob.
         double mobHealth = mob.getHealth();
@@ -84,20 +85,20 @@ public class TurnBasedCombatSession extends BukkitRunnable {
         // Award Attack XP.
         AttackStats attackStats = AttackStatsManager.getStats(player);
         if (attackStats != null) {
-            attackStats.addExperience(damage, player);
+            attackStats.addExperience(damage * xpMultiplier, player);
         } else {
             player.sendMessage(ChatColor.RED + "Attack stats not loaded!");
         }
 
         StrengthStats strengthStats = StrengthStatsManager.getStats(player);
         if (strengthStats != null) {
-            strengthStats.addExperience(damage, player);
+            strengthStats.addExperience(damage * xpMultiplier, player);
         } else {
             player.sendMessage(ChatColor.RED + "Strength stats not loaded!");
         }
         DefenceStats defenceStats = DefenceStatsManager.getStats(player);
         if (defenceStats != null) {
-            defenceStats.addExperience(damage, player);
+            defenceStats.addExperience(damage * xpMultiplier, player);
         } else {
             player.sendMessage(ChatColor.RED + "Defence stats not loaded!");
         }
@@ -151,6 +152,7 @@ public class TurnBasedCombatSession extends BukkitRunnable {
     private int calculateMobDamage() {
         // Base damage between 3 and 6.
         int baseDamage = 3 + (int)(Math.random() * 4);
+        baseDamage = (int) (baseDamage * getMobDamageMultiplier());
 
         // Retrieve the player's overall combat level.
         int playerCombat = Math.max(1, CombatLevelCalculator.getCombatLevel(player));
@@ -186,6 +188,27 @@ public class TurnBasedCombatSession extends BukkitRunnable {
         progress = Math.max(0, Math.min(progress, 1));
         mobBar.setProgress(progress);
         mobBar.setTitle(ChatColor.RED + "Mob Health: " + (int) currentHealth + "/" + (int) maxHealth);
+    }
+
+    private double getMobXpMultiplier() {
+        if (mob.hasMetadata("mobLevelData") && !mob.getMetadata("mobLevelData").isEmpty()) {
+            Object metaValue = mob.getMetadata("mobLevelData").get(0).value();
+            if (metaValue instanceof MobLevelData data) {
+                double multiplier = 1.0 + (data.getLevel() / 50.0);
+                return data.isElite() ? multiplier * 1.5 : multiplier;
+            }
+        }
+        return 1.0;
+    }
+
+    private double getMobDamageMultiplier() {
+        if (mob.hasMetadata("mobLevelData") && !mob.getMetadata("mobLevelData").isEmpty()) {
+            Object metaValue = mob.getMetadata("mobLevelData").get(0).value();
+            if (metaValue instanceof MobLevelData data) {
+                return data.getDamageMultiplier();
+            }
+        }
+        return 1.0;
     }
 
     private void endCombat() {

@@ -2,6 +2,7 @@ package hoffmantv.runeCraft;
 
 import hoffmantv.runeCraft.commands.*;
 import hoffmantv.runeCraft.mobs.MobLevelListener;
+import hoffmantv.runeCraft.mobs.MobLevelRewardsListener;
 import hoffmantv.runeCraft.mobs.MobSpawnManager;
 import hoffmantv.runeCraft.mobs.MobSpawnRestrictionListener;
 import hoffmantv.runeCraft.skills.combat.TurnBasedCombatListener;
@@ -155,6 +156,7 @@ public final class RuneCraft extends JavaPlugin {
         pm.registerEvents(new MobSpawnRestrictionListener(), this);
         pm.registerEvents(new SmeltingListener(), this);
         pm.registerEvents(new MobLevelListener(), this);
+        pm.registerEvents(new MobLevelRewardsListener(), this);
         pm.registerEvents(new SwordHoldListener(), this);
         pm.registerEvents(new ArmorEquipListener(), this);
     }
