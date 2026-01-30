@@ -1,24 +1,29 @@
 package hoffmantv.runeCraft.skills.attack;
 
+import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
-public class AttackStatsManager {
-    private static final Map<UUID, AttackStats> statsMap = new HashMap<>();
+public class AttackStatsManager extends BaseStatsManager<AttackStats> {
+    private static final AttackStatsManager INSTANCE = new AttackStatsManager();
 
-    public static void loadPlayer(Player player) {
-        UUID uuid = player.getUniqueId();
-        AttackStats stats = AttackStats.load(player);
-        statsMap.put(uuid, stats);
+    @Override
+    protected AttackStats load(Player player) {
+        return AttackStats.load(player);
     }
 
     public static AttackStats getStats(Player player) {
-        return statsMap.get(player.getUniqueId());
+        return INSTANCE.getStatsInternal(player);
+    }
+
+    public static void loadPlayer(Player player) {
+        INSTANCE.loadPlayerInternal(player);
     }
 
     public static void removePlayer(Player player) {
-        statsMap.remove(player.getUniqueId());
+        INSTANCE.removePlayerInternal(player);
+    }
+
+    public static void clear() {
+        INSTANCE.clearInternal();
     }
 }

@@ -1,50 +1,37 @@
 package hoffmantv.runeCraft.skills.fishing;
 
 import hoffmantv.runeCraft.RuneCraft;
+import hoffmantv.runeCraft.config.YamlConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FishingSpotsManager {
 
-    private static File configFile;
-    private static FileConfiguration config;
+    private static YamlConfigManager configManager;
     private static final List<Location> fishingSpots = new ArrayList<>();
     private static BukkitTask effectTask;
 
     public static void init(RuneCraft plugin) {
-        configFile = new File(plugin.getDataFolder(), "fishingSpots.yml");
-        if (!configFile.exists()) {
-            configFile.getParentFile().mkdirs();
-            try {
-                // Create a new empty fishingSpots.yml file.
-                configFile.createNewFile();
-            } catch (IOException e) {
-                Bukkit.getLogger().severe("Could not create fishingSpots.yml: " + e.getMessage());
-            }
-        }
-        config = YamlConfiguration.loadConfiguration(configFile);
+        configManager = new YamlConfigManager(plugin, "fishingSpots.yml");
+        configManager.init();
         loadFishingSpots();
         startEffectTask();
     }
 
     private static void loadFishingSpots() {
         fishingSpots.clear();
-        if (config.isConfigurationSection("spots")) {
-            for (String key : config.getConfigurationSection("spots").getKeys(false)) {
-                double x = config.getDouble("spots." + key + ".x");
-                double y = config.getDouble("spots." + key + ".y");
-                double z = config.getDouble("spots." + key + ".z");
-                String worldName = config.getString("spots." + key + ".world");
+        if (configManager.getConfig().isConfigurationSection("spots")) {
+            for (String key : configManager.getConfig().getConfigurationSection("spots").getKeys(false)) {
+                double x = configManager.getConfig().getDouble("spots." + key + ".x");
+                double y = configManager.getConfig().getDouble("spots." + key + ".y");
+                double z = configManager.getConfig().getDouble("spots." + key + ".z");
+                String worldName = configManager.getConfig().getString("spots." + key + ".world");
                 World world = Bukkit.getWorld(worldName);
                 if (world != null) {
                     Location loc = new Location(world, x, y, z);
@@ -78,10 +65,10 @@ public class FishingSpotsManager {
     public static void addFishingSpot(Location loc) {
         fishingSpots.add(loc);
         int index = fishingSpots.size();
-        config.set("spots.spot" + index + ".x", loc.getX());
-        config.set("spots.spot" + index + ".y", loc.getY());
-        config.set("spots.spot" + index + ".z", loc.getZ());
-        config.set("spots.spot" + index + ".world", loc.getWorld().getName());
+        configManager.getConfig().set("spots.spot" + index + ".x", loc.getX());
+        configManager.getConfig().set("spots.spot" + index + ".y", loc.getY());
+        configManager.getConfig().set("spots.spot" + index + ".z", loc.getZ());
+        configManager.getConfig().set("spots.spot" + index + ".world", loc.getWorld().getName());
         saveConfig();
 
         // Play immediate effects to signal the spot is active.
@@ -90,10 +77,8 @@ public class FishingSpotsManager {
     }
 
     private static void saveConfig() {
-        try {
-            config.save(configFile);
-        } catch (IOException e) {
-            Bukkit.getLogger().severe("Could not save fishingSpots.yml: " + e.getMessage());
+        if (configManager != null) {
+            configManager.save();
         }
     }
 
@@ -119,7 +104,7 @@ public class FishingSpotsManager {
             effectTask.cancel();
             effectTask = null;
         }
-        if (config != null) {
+        if (configManager != null) {
             saveConfig();
         }
     }

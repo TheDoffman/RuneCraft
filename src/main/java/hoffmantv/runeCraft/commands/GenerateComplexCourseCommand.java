@@ -1,8 +1,6 @@
 package hoffmantv.runeCraft.commands;
 
-import hoffmantv.runeCraft.skills.agility.AgilityCourseInstance;
-import hoffmantv.runeCraft.skills.agility.AgilityCourseManager;
-import hoffmantv.runeCraft.skills.agility.ComplexAgilityCourse;
+import hoffmantv.runeCraft.skills.agility.AgilityProceduralGenerator;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -20,6 +18,10 @@ public class GenerateComplexCourseCommand implements CommandExecutor {
             sender.sendMessage("Only players can generate an agility course.");
             return true;
         }
+        if (!sender.hasPermission("rc.generatecourse")) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to generate courses.");
+            return true;
+        }
         Player player = (Player) sender;
         Location playerLoc = player.getLocation();
         Vector direction = playerLoc.getDirection().normalize();
@@ -28,13 +30,10 @@ public class GenerateComplexCourseCommand implements CommandExecutor {
         // Set the Y level to the player's current Y.
         courseOrigin.setY(playerLoc.getY());
 
-        // Create a new complex agility course.
-        ComplexAgilityCourse course = new ComplexAgilityCourse("Player Course");
-        course.generateCourse(courseOrigin);
-
-        // Create an instance of the course and add it to the manager.
-        AgilityCourseInstance instance = new AgilityCourseInstance(course, courseOrigin);
-        AgilityCourseManager.addCourse(instance);
+        String courseName = "Player Course";
+        int radius = 10;
+        int difficulty = 3;
+        AgilityProceduralGenerator.generate(player, courseName, radius, difficulty);
 
         player.sendMessage(ChatColor.GREEN + "Agility course generated in front of you at " + courseOrigin);
         return true;

@@ -15,6 +15,10 @@ public class SetFishingSpotCommand implements CommandExecutor {
             sender.sendMessage("Only players can set a fishing spot.");
             return true;
         }
+        if (!sender.hasPermission("rc.fishingspotset")) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to set fishing spots.");
+            return true;
+        }
         Player player = (Player) sender;
         FishingSpotsManager.addFishingSpot(player.getLocation());
         player.sendMessage(ChatColor.GREEN + "Fishing spot added at your current location.");

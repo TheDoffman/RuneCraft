@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
@@ -118,7 +119,7 @@ public class WoodcuttingEvent extends BukkitRunnable {
 
         // Schedule regrowth: after a random delay between 1 and 30 seconds.
         int delay = (random.nextInt(30) + 1) * 20; // in ticks
-        Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
+        BukkitTask regrowTask = Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
             if (initialBlock.getType() == sapling) {
                 for (Map.Entry<Location, Material> entry : treeShape.entrySet()) {
                     Location loc = entry.getKey();
@@ -127,6 +128,7 @@ public class WoodcuttingEvent extends BukkitRunnable {
                 }
             }
         }, delay);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), regrowTask);
     }
 
     // Flood-fill algorithm to collect all connected blocks that are part of the tree.

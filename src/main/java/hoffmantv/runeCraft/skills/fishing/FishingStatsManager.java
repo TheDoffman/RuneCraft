@@ -1,24 +1,29 @@
 package hoffmantv.runeCraft.skills.fishing;
 
+import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
-public class FishingStatsManager {
-    private static final Map<UUID, FishingStats> statsMap = new HashMap<>();
+public class FishingStatsManager extends BaseStatsManager<FishingStats> {
+    private static final FishingStatsManager INSTANCE = new FishingStatsManager();
 
-    public static void loadPlayer(Player player) {
-        UUID uuid = player.getUniqueId();
-        FishingStats stats = FishingStats.load(player);
-        statsMap.put(uuid, stats);
+    @Override
+    protected FishingStats load(Player player) {
+        return FishingStats.load(player);
     }
 
     public static FishingStats getStats(Player player) {
-        return statsMap.get(player.getUniqueId());
+        return INSTANCE.getStatsInternal(player);
+    }
+
+    public static void loadPlayer(Player player) {
+        INSTANCE.loadPlayerInternal(player);
     }
 
     public static void removePlayer(Player player) {
-        statsMap.remove(player.getUniqueId());
+        INSTANCE.removePlayerInternal(player);
+    }
+
+    public static void clear() {
+        INSTANCE.clearInternal();
     }
 }

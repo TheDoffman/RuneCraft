@@ -6,6 +6,7 @@ import hoffmantv.runeCraft.mobs.MobSpawnManager;
 import hoffmantv.runeCraft.mobs.MobSpawnRestrictionListener;
 import hoffmantv.runeCraft.skills.combat.TurnBasedCombatListener;
 import hoffmantv.runeCraft.skills.PlayerJoinListener;
+import hoffmantv.runeCraft.skills.PlayerQuitCleanupListener;
 import hoffmantv.runeCraft.skills.SkillManager;
 import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
 import hoffmantv.runeCraft.scoreboard.StatsLeaderboard;
@@ -15,16 +16,19 @@ import hoffmantv.runeCraft.skills.combat.TurnBasedCombatSession;
 import hoffmantv.runeCraft.skills.cooking.CookingListener;
 import hoffmantv.runeCraft.skills.defence.ArmorEquipListener;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingListener;
+import hoffmantv.runeCraft.skills.firemaking.FiremakingListenerHelper;
 import hoffmantv.runeCraft.skills.firemaking.LogPlacePreventionListener;
 import hoffmantv.runeCraft.skills.fishing.FishingListener;
 import hoffmantv.runeCraft.skills.fishing.FishingSpotsManager;
 import hoffmantv.runeCraft.skills.mining.MiningBlockBreakPreventionListener;
 import hoffmantv.runeCraft.skills.mining.MiningListener;
+import hoffmantv.runeCraft.skills.mining.MiningListenerHelper;
 import hoffmantv.runeCraft.skills.mining.PickaxeHoldListener;
 import hoffmantv.runeCraft.skills.smelting.SmeltingListener;
 import hoffmantv.runeCraft.skills.strength.SwordHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.AxeHoldListener;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingListener;
+import hoffmantv.runeCraft.tasks.TaskRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandExecutor;
@@ -45,6 +49,7 @@ public final class RuneCraft extends JavaPlugin {
     private static RuneCraft instance;
     private final Map<UUID, StatsLeaderboard> leaderboards = new HashMap<>();
     private final Set<UUID> scoreboardDisabled = new HashSet<>();
+    private final TaskRegistry taskRegistry = new TaskRegistry();
     private BukkitTask scoreboardTask;
     private BukkitTask combatLevelTask;
     public static NamespacedKey getKey(String key) {
@@ -116,6 +121,9 @@ public final class RuneCraft extends JavaPlugin {
         PlayerSkillDataManager.saveData(this);
         leaderboards.clear();
         scoreboardDisabled.clear();
+        taskRegistry.cancelAll();
+        MiningListenerHelper.clearAll();
+        FiremakingListenerHelper.clearAll();
 
         getLogger().info("[RC] Plugin disabled.");
     }
@@ -131,7 +139,9 @@ public final class RuneCraft extends JavaPlugin {
     private void initListeners() {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new PlayerJoinListener(), this);
+        pm.registerEvents(new PlayerQuitCleanupListener(), this);
         pm.registerEvents(new ScoreboardCleanupListener(), this);
+        pm.registerEvents(new WaterEntryPreventionListener(), this);
         pm.registerEvents(new WoodcuttingListener(), this);
         pm.registerEvents(new AxeHoldListener(), this);
         pm.registerEvents(new FiremakingListener(), this);
@@ -155,6 +165,7 @@ public final class RuneCraft extends JavaPlugin {
         registerCommand("setmobspawn", new SetMobSpawnCommand());
         registerCommand("scoreboard", new ScoreboardToggleCommand());
         registerCommand("generatecourse", new GenerateComplexCourseCommand());
+        registerCommand("agility", new AgilityCommand());
     }
 
     private void registerCommand(String name, CommandExecutor executor) {
@@ -181,5 +192,9 @@ public final class RuneCraft extends JavaPlugin {
 
     public boolean isScoreboardEnabled(UUID uuid) {
         return !scoreboardDisabled.contains(uuid);
+    }
+
+    public TaskRegistry getTaskRegistry() {
+        return taskRegistry;
     }
 }

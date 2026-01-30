@@ -1,15 +1,12 @@
 package hoffmantv.runeCraft.mobs;
 
 import hoffmantv.runeCraft.RuneCraft;
+import hoffmantv.runeCraft.config.YamlConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,38 +14,29 @@ import java.util.Map;
 
 public class MobSpawnManager {
 
-    private static File configFile;
-    private static FileConfiguration config;
+    private static YamlConfigManager configManager;
     // Map of mob type to a list of spawn locations.
     private static final Map<EntityType, List<Location>> mobSpawnMap = new HashMap<>();
 
     public static void init(RuneCraft plugin) {
-        configFile = new File(plugin.getDataFolder(), "mobSpawns.yml");
-        if (!configFile.exists()) {
-            configFile.getParentFile().mkdirs();
-            try {
-                configFile.createNewFile();
-            } catch (IOException e) {
-                Bukkit.getLogger().severe("Could not create mobSpawns.yml: " + e.getMessage());
-            }
-        }
-        config = YamlConfiguration.loadConfiguration(configFile);
+        configManager = new YamlConfigManager(plugin, "mobSpawns.yml");
+        configManager.init();
         loadMobSpawns();
     }
 
     private static void loadMobSpawns() {
         mobSpawnMap.clear();
-        if (config.isConfigurationSection("spawns")) {
-            for (String typeStr : config.getConfigurationSection("spawns").getKeys(false)) {
+        if (configManager.getConfig().isConfigurationSection("spawns")) {
+            for (String typeStr : configManager.getConfig().getConfigurationSection("spawns").getKeys(false)) {
                 try {
                     EntityType mobType = EntityType.valueOf(typeStr);
                     List<Location> locations = new ArrayList<>();
-                    if (config.isConfigurationSection("spawns." + typeStr)) {
-                        for (String key : config.getConfigurationSection("spawns." + typeStr).getKeys(false)) {
-                            double x = config.getDouble("spawns." + typeStr + "." + key + ".x");
-                            double y = config.getDouble("spawns." + typeStr + "." + key + ".y");
-                            double z = config.getDouble("spawns." + typeStr + "." + key + ".z");
-                            String worldName = config.getString("spawns." + typeStr + "." + key + ".world");
+                    if (configManager.getConfig().isConfigurationSection("spawns." + typeStr)) {
+                        for (String key : configManager.getConfig().getConfigurationSection("spawns." + typeStr).getKeys(false)) {
+                            double x = configManager.getConfig().getDouble("spawns." + typeStr + "." + key + ".x");
+                            double y = configManager.getConfig().getDouble("spawns." + typeStr + "." + key + ".y");
+                            double z = configManager.getConfig().getDouble("spawns." + typeStr + "." + key + ".z");
+                            String worldName = configManager.getConfig().getString("spawns." + typeStr + "." + key + ".world");
                             if (worldName == null) {
                                 continue;
                             }
@@ -85,18 +73,16 @@ public class MobSpawnManager {
         locations.add(loc);
         mobSpawnMap.put(mobType, locations);
         int index = locations.size();
-        config.set("spawns." + mobType.name() + ".spawn" + index + ".x", loc.getX());
-        config.set("spawns." + mobType.name() + ".spawn" + index + ".y", loc.getY());
-        config.set("spawns." + mobType.name() + ".spawn" + index + ".z", loc.getZ());
-        config.set("spawns." + mobType.name() + ".spawn" + index + ".world", loc.getWorld().getName());
+        configManager.getConfig().set("spawns." + mobType.name() + ".spawn" + index + ".x", loc.getX());
+        configManager.getConfig().set("spawns." + mobType.name() + ".spawn" + index + ".y", loc.getY());
+        configManager.getConfig().set("spawns." + mobType.name() + ".spawn" + index + ".z", loc.getZ());
+        configManager.getConfig().set("spawns." + mobType.name() + ".spawn" + index + ".world", loc.getWorld().getName());
         saveConfig();
     }
 
     private static void saveConfig() {
-        try {
-            config.save(configFile);
-        } catch (IOException e) {
-            Bukkit.getLogger().severe("Could not save mobSpawns.yml: " + e.getMessage());
+        if (configManager != null) {
+            configManager.save();
         }
     }
 

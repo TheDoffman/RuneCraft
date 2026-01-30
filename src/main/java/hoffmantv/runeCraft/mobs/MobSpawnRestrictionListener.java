@@ -9,7 +9,7 @@ public class MobSpawnRestrictionListener implements Listener {
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent event) {
         switch (event.getSpawnReason()) {
-            case NATURAL, BREEDING, DISPENSED, SPAWNER, CHUNK_GENERATION, CHUNK_GEN -> event.setCancelled(true);
+            case NATURAL, BREEDING, SPAWNER -> event.setCancelled(true);
             default -> {
                 // Allow other spawn reasons.
             }

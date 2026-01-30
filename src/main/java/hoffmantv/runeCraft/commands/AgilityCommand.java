@@ -15,6 +15,10 @@ public class AgilityCommand implements CommandExecutor {
             s.sendMessage("Players only.");
             return true;
         }
+        if (!s.hasPermission("rc.agility")) {
+            s.sendMessage(ChatColor.RED + "You don't have permission to use agility commands.");
+            return true;
+        }
 
         if (args.length == 0) {
             p.sendMessage(ChatColor.AQUA + "/agility start <course>");

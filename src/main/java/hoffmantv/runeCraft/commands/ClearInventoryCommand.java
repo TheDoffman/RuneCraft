@@ -15,6 +15,10 @@ public class ClearInventoryCommand implements CommandExecutor {
             sender.sendMessage("This command can only be run by a player.");
             return true;
         }
+        if (!sender.hasPermission("rc.clearinventory")) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to clear inventory.");
+            return true;
+        }
 
         Player player = (Player) sender;
         // Clear the player's inventory.

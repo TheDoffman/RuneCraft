@@ -1,17 +1,17 @@
-package hoffmantv.runeCraft.skills.woodcutting;
+package hoffmantv.runeCraft.skills.smithing;
 
 import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
 
-public class WoodcuttingStatsManager extends BaseStatsManager<WoodcuttingStats> {
-    private static final WoodcuttingStatsManager INSTANCE = new WoodcuttingStatsManager();
+public class SmithingStatsManager extends BaseStatsManager<SmithingStats> {
+    private static final SmithingStatsManager INSTANCE = new SmithingStatsManager();
 
     @Override
-    protected WoodcuttingStats load(Player player) {
-        return WoodcuttingStats.load(player);
+    protected SmithingStats load(Player player) {
+        return SmithingStats.load(player);
     }
 
-    public static WoodcuttingStats getStats(Player player) {
+    public static SmithingStats getStats(Player player) {
         return INSTANCE.getStatsInternal(player);
     }
 

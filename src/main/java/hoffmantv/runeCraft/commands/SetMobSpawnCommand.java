@@ -18,6 +18,10 @@ public class SetMobSpawnCommand implements CommandExecutor {
             sender.sendMessage("Only players can set mob spawn locations.");
             return true;
         }
+        if (!sender.hasPermission("rc.mobspawnset")) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to set mob spawns.");
+            return true;
+        }
         Player player = (Player) sender;
         Location loc = player.getLocation();
 
@@ -29,6 +33,10 @@ public class SetMobSpawnCommand implements CommandExecutor {
             } catch (IllegalArgumentException e) {
                 player.sendMessage(ChatColor.RED + "Invalid mob type provided. Defaulting to ZOMBIE.");
             }
+        }
+        if (!mobType.isSpawnable() || !mobType.isAlive()) {
+            player.sendMessage(ChatColor.RED + "That mob type cannot be spawned.");
+            return true;
         }
 
         // Spawn the mob immediately at the player's location.

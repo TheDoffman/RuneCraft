@@ -1,25 +1,29 @@
 package hoffmantv.runeCraft.skills.strength;
 
+import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+public class StrengthStatsManager extends BaseStatsManager<StrengthStats> {
+    private static final StrengthStatsManager INSTANCE = new StrengthStatsManager();
 
-public class StrengthStatsManager {
-    private static final Map<UUID, StrengthStats> statsMap = new HashMap<>();
-
-    public static void loadPlayer(Player player) {
-        UUID uuid = player.getUniqueId();
-        StrengthStats stats = StrengthStats.load(player);
-        statsMap.put(uuid, stats);
+    @Override
+    protected StrengthStats load(Player player) {
+        return StrengthStats.load(player);
     }
 
     public static StrengthStats getStats(Player player) {
-        return statsMap.get(player.getUniqueId());
+        return INSTANCE.getStatsInternal(player);
+    }
+
+    public static void loadPlayer(Player player) {
+        INSTANCE.loadPlayerInternal(player);
     }
 
     public static void removePlayer(Player player) {
-        statsMap.remove(player.getUniqueId());
+        INSTANCE.removePlayerInternal(player);
+    }
+
+    public static void clear() {
+        INSTANCE.clearInternal();
     }
 }

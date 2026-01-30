@@ -4,6 +4,7 @@ package hoffmantv.runeCraft.skills;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +17,9 @@ public class PlayerSkillDataManager {
 
     private static File playerDataFile;
     private static FileConfiguration playerDataConfig;
+    private static JavaPlugin plugin;
+    private static BukkitTask pendingSaveTask;
+    private static final long SAVE_DELAY_TICKS = 100L;
 
     /**
      * Sets up the playerskills.yml file.
@@ -24,6 +28,7 @@ public class PlayerSkillDataManager {
      * @param plugin Your main JavaPlugin instance.
      */
     public static void setup(JavaPlugin plugin) {
+        PlayerSkillDataManager.plugin = plugin;
         // Ensure the plugin folder exists.
         if (!plugin.getDataFolder().exists()) {
             plugin.getDataFolder().mkdirs();
@@ -56,6 +61,10 @@ public class PlayerSkillDataManager {
      * @param plugin Your main JavaPlugin instance.
      */
     public static void saveData(JavaPlugin plugin) {
+        if (pendingSaveTask != null) {
+            pendingSaveTask.cancel();
+            pendingSaveTask = null;
+        }
         try {
             playerDataConfig.save(playerDataFile);
         } catch (IOException e) {
@@ -68,6 +77,19 @@ public class PlayerSkillDataManager {
      */
     public static void reloadData() {
         playerDataConfig = YamlConfiguration.loadConfiguration(playerDataFile);
+    }
+
+    public static void queueSave() {
+        if (plugin == null) {
+            return;
+        }
+        if (pendingSaveTask != null) {
+            return;
+        }
+        pendingSaveTask = plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            saveData(plugin);
+            pendingSaveTask = null;
+        }, SAVE_DELAY_TICKS);
     }
 
     // Example methods to access and modify a player's skill XP and rank.

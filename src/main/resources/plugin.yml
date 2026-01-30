@@ -19,9 +19,15 @@ commands:
   setmobspawn:
     description: Spawns a mob at a specific location.
     usage: /setmobspawn
+    permission: rc.mobspawnset
   scoreboard:
     description: Toggle the skills scoreboard on and off.
     usage: /scoreboard
   generatecourse:
     description: Generates an agility course in front of the player.
     usage: /generatecourse
+    permission: rc.generatecourse
+  agility:
+    description: Agility skill commands.
+    usage: /agility <start|gen|level>
+    permission: rc.agility

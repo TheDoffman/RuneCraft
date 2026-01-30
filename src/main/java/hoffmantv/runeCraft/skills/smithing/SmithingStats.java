@@ -1,35 +1,51 @@
 package hoffmantv.runeCraft.skills.smithing;
 
-import hoffmantv.runeCraft.skills.PlayerSkillDataManager;
+import hoffmantv.runeCraft.skills.BaseStats;
 import org.bukkit.entity.Player;
 
-public class SmithingStats {
-
-    private double xp;
-    private int level;
-
-    public SmithingStats(double xp) {
-        this.xp = xp;
-        this.level = calculateLevel(xp);
+public class SmithingStats extends BaseStats {
+    public static SmithingStats load(Player player) {
+        SmithingStats stats = new SmithingStats();
+        stats.loadFromPlayer(player);
+        return stats;
     }
 
+    @Override
+    protected String getSkillKey() {
+        return "smithing";
+    }
+
+    @Override
+    protected String getSkillDisplayName() {
+        return "Smithing";
+    }
+
+    @Override
+    protected double getXpMultiplier() {
+        return 0;
+    }
+
+    @Override
+    public void loadFromPlayer(Player player) {
+        super.loadFromPlayer(player);
+        this.level = calculateLevel(this.xp);
+    }
+
+    @Override
     public void addExperience(double amount, Player player) {
         this.xp += amount;
         int oldLevel = this.level;
         this.level = calculateLevel(this.xp);
-
         if (this.level > oldLevel) {
-            // Trigger level-up announcement if needed
-            hoffmantv.runeCraft.skills.SkillRewardUtils.triggerSkillRankUpEffect(player, "Smithing", this.level);
+            for (int lvl = oldLevel + 1; lvl <= this.level; lvl++) {
+                this.level = lvl;
+                onLevelUp(player);
+                if (this.level % 5 == 0) {
+                    onMilestoneLevel(player);
+                }
+            }
         }
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public double getXp() {
-        return xp;
+        save(player);
     }
 
     private int calculateLevel(double xp) {
@@ -41,9 +57,5 @@ public class SmithingStats {
             requiredXP += Math.floor(level + 300.0 * Math.pow(2.0, level / 7.0));
         }
         return level;
-    }
-
-    public void save(Player player) {
-        PlayerSkillDataManager.setPlayerSkillXP(String.valueOf(player.getUniqueId()), "Smithing", this.xp);
     }
 }

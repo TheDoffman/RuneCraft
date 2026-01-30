@@ -1,24 +1,29 @@
 package hoffmantv.runeCraft.skills.cooking;
 
+import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
-public class CookingStatsManager {
-    private static final Map<UUID, CookingStats> statsMap = new HashMap<>();
+public class CookingStatsManager extends BaseStatsManager<CookingStats> {
+    private static final CookingStatsManager INSTANCE = new CookingStatsManager();
 
-    public static void loadPlayer(Player player) {
-        UUID uuid = player.getUniqueId();
-        CookingStats stats = CookingStats.load(player);
-        statsMap.put(uuid, stats);
+    @Override
+    protected CookingStats load(Player player) {
+        return CookingStats.load(player);
     }
 
     public static CookingStats getStats(Player player) {
-        return statsMap.get(player.getUniqueId());
+        return INSTANCE.getStatsInternal(player);
+    }
+
+    public static void loadPlayer(Player player) {
+        INSTANCE.loadPlayerInternal(player);
     }
 
     public static void removePlayer(Player player) {
-        statsMap.remove(player.getUniqueId());
+        INSTANCE.removePlayerInternal(player);
+    }
+
+    public static void clear() {
+        INSTANCE.clearInternal();
     }
 }

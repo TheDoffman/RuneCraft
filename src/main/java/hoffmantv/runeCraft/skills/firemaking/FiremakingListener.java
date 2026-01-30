@@ -63,7 +63,7 @@ public class FiremakingListener implements Listener {
             player.getInventory().addItem(new ItemStack(logType, 1));
             return;
         }
-        FiremakingListenerHelper.markActive(clickedBlock);
+        FiremakingListenerHelper.markActive(clickedBlock, player.getUniqueId());
 
         // Cancel default interaction.
         event.setCancelled(true);
@@ -84,6 +84,7 @@ public class FiremakingListener implements Listener {
                     clickedBlock.getLocation().add(0.5, 1, 0.5),
                     5, 0.2, 0.2, 0.2, 0.01);
         }, 0L, 10L);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), particleTask);
 
         BukkitTask soundTask = Bukkit.getScheduler().runTaskTimer(RuneCraft.getInstance(), () -> {
             clickedBlock.getWorld().playSound(
@@ -91,10 +92,11 @@ public class FiremakingListener implements Listener {
                     Sound.ITEM_FLINTANDSTEEL_USE,
                     1.0F, 1.0F);
         }, 0L, 20L);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), soundTask);
 
         // Schedule the firemaking event after a random delay between 1 and 5 seconds.
         int delayToLight = (random.nextInt(5) + 1) * 20; // 20-100 ticks
-        Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
+        BukkitTask igniteTask = Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
             // Cancel the particle and sound tasks.
             particleTask.cancel();
             soundTask.cancel();
@@ -116,7 +118,7 @@ public class FiremakingListener implements Listener {
 
             // Schedule campfire burnout after a random delay between 60 and 90 seconds.
             int burnTime = (random.nextInt(31) + 60) * 20; // ticks (60-90 sec)
-            Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
+            BukkitTask burnoutTask = Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
                 if (campfireBlock.getType() == Material.CAMPFIRE) {
                     campfireBlock.setType(Material.AIR);
                     player.sendMessage(ChatColor.YELLOW + "The campfire has burned out.");
@@ -132,8 +134,10 @@ public class FiremakingListener implements Listener {
                 // Unmark the block so another event can be started later.
                 FiremakingListenerHelper.unmarkActive(clickedBlock);
             }, burnTime);
+            RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), burnoutTask);
 
         }, delayToLight);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), igniteTask);
     }
 
     // Helper method: check if a material is one of the log types.

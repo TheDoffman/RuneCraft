@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class SmeltingListener implements Listener {
 
@@ -79,7 +80,7 @@ public class SmeltingListener implements Listener {
         int smeltingTime = Math.max(40, baseTime - bonusReduction); // Minimum 40 ticks (2 seconds)
 
         // Optional: Spawn continuous furnace effects while smelting.
-        new BukkitRunnable() {
+        BukkitTask effectTask = new BukkitRunnable() {
             int effectTicks = 0;
             @Override
             public void run() {
@@ -94,9 +95,10 @@ public class SmeltingListener implements Listener {
                 effectTicks += 10;
             }
         }.runTaskTimer(RuneCraft.getInstance(), 0L, 10L);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), effectTask);
 
         // Schedule the smelting process after the calculated delay.
-        new BukkitRunnable() {
+        BukkitTask smeltTask = new BukkitRunnable() {
             @Override
             public void run() {
                 // Revert the furnace back to its original unlit state while preserving orientation.
@@ -146,5 +148,6 @@ public class SmeltingListener implements Listener {
                 stats.save(player);
             }
         }.runTaskLater(RuneCraft.getInstance(), smeltingTime);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), smeltTask);
     }
 }

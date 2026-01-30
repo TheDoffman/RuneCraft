@@ -57,8 +57,8 @@ public class SmithingMenu {
         menu.addItem(item);
     }
 
-    public static boolean isMenu(Inventory inventory) {
-        if (event.getView().getTitle().equals(MENU_TITLE))
+    public static boolean isMenu(InventoryClickEvent event) {
+        return event.getView().getTitle().equals(MENU_TITLE);
     }
 
     public static void handleClick(InventoryClickEvent event) {

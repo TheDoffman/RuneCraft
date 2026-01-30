@@ -19,6 +19,10 @@ import hoffmantv.runeCraft.skills.cooking.CookingStats;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
 import hoffmantv.runeCraft.skills.smelting.SmeltingStats;
 import hoffmantv.runeCraft.skills.smelting.SmeltingStatsManager;
+import hoffmantv.runeCraft.skills.agility.AgilityStats;
+import hoffmantv.runeCraft.skills.agility.AgilityStatsManager;
+import hoffmantv.runeCraft.skills.smithing.SmithingStats;
+import hoffmantv.runeCraft.skills.smithing.SmithingStatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -51,10 +55,6 @@ public class StatsLeaderboard {
             scoreboard.resetScores(entry);
         }
 
-        // Add a footer for visual separation.
-        String footer = ChatColor.GOLD + "————————————";
-        objective.getScore(footer + getInvisible(100)).setScore(0);
-
         int score = 99;
         int uniqueCounter = 0;
 
@@ -68,11 +68,14 @@ public class StatsLeaderboard {
         FishingStats fishingStats = FishingStatsManager.getStats(player);
         CookingStats cookingStats = CookingStatsManager.getStats(player);
         SmeltingStats smeltingStats = SmeltingStatsManager.getStats(player);
+        AgilityStats agilityStats = AgilityStatsManager.getStats(player);
+        SmithingStats smithingStats = SmithingStatsManager.getStats(player);
 
         // Ensure all skills are loaded.
         if (attackStats == null || defenceStats == null || strengthStats == null ||
                 woodStats == null || fireStats == null || miningStats == null ||
-                fishingStats == null || cookingStats == null || smeltingStats == null) {
+                fishingStats == null || cookingStats == null || smeltingStats == null ||
+                agilityStats == null || smithingStats == null) {
             return;
         }
 
@@ -81,41 +84,52 @@ public class StatsLeaderboard {
         // objective.getScore(nameLine).setScore(score--);
 
         // Display Combat Rank on a separate line.
-        String combatRankLine = ChatColor.GRAY + "Combat Rank: " + CombatLevelCalculator.getCombatLevel(player)
+        String combatRankLine = ChatColor.GRAY + "Combat: " + ChatColor.YELLOW + CombatLevelCalculator.getCombatLevel(player)
                 + getInvisible(uniqueCounter++);
         objective.getScore(combatRankLine).setScore(score--);
 
-        // Build a list of skill entries using icons.
-        List<String> skillEntries = new ArrayList<>();
-        skillEntries.add(ChatColor.GREEN + "⚔ " + attackStats.getLevel());
-        skillEntries.add(ChatColor.YELLOW + "🛡 " + defenceStats.getLevel());
-        skillEntries.add(ChatColor.LIGHT_PURPLE + "💪 " + strengthStats.getLevel());
-        skillEntries.add(ChatColor.GOLD + "🌳 " + woodStats.getLevel());
-        skillEntries.add(ChatColor.RED + "🔥 " + fireStats.getLevel());
-        skillEntries.add(ChatColor.DARK_AQUA + "⛏ " + miningStats.getLevel());
-        skillEntries.add(ChatColor.BLUE + "🎣 " + fishingStats.getLevel());
-        skillEntries.add(ChatColor.LIGHT_PURPLE + "🍳 " + cookingStats.getLevel());
-        skillEntries.add(ChatColor.GRAY + "⚙ " + smeltingStats.getLevel());
+        // Add a spacer.
+        objective.getScore(ChatColor.DARK_GRAY + " " + getInvisible(uniqueCounter++)).setScore(score--);
 
-        // Group skill entries into rows of 3.
+        // Build a list of skill entries using icons in OSRS-style columns.
+        List<String> skillEntries = new ArrayList<>();
+        skillEntries.add(formatSkillCompact("⚔", attackStats.getLevel()));
+        skillEntries.add(formatSkillCompact("🛡", defenceStats.getLevel()));
+        skillEntries.add(formatSkillCompact("💪", strengthStats.getLevel()));
+        skillEntries.add(formatSkillCompact("🏃", agilityStats.getLevel()));
+        skillEntries.add(formatSkillCompact("🌳", woodStats.getLevel()));
+        skillEntries.add(formatSkillCompact("🔥", fireStats.getLevel()));
+        skillEntries.add(formatSkillCompact("⛏", miningStats.getLevel()));
+        skillEntries.add(formatSkillCompact("🎣", fishingStats.getLevel()));
+        skillEntries.add(formatSkillCompact("🍳", cookingStats.getLevel()));
+        skillEntries.add(formatSkillCompact("⚙", smeltingStats.getLevel()));
+        skillEntries.add(formatSkillCompact("⚒", smithingStats.getLevel()));
+
+        // Group skill entries into rows of 3, similar to OSRS layout.
         for (int i = 0; i < skillEntries.size(); i += 3) {
             StringBuilder row = new StringBuilder();
             row.append(skillEntries.get(i));
             if (i + 1 < skillEntries.size()) {
-                row.append("    ").append(skillEntries.get(i + 1));
+                row.append("   ").append(skillEntries.get(i + 1));
             }
             if (i + 2 < skillEntries.size()) {
-                row.append("    ").append(skillEntries.get(i + 2));
+                row.append("   ").append(skillEntries.get(i + 2));
             }
             objective.getScore(row.toString() + getInvisible(uniqueCounter++)).setScore(score--);
         }
 
-        // Calculate total non-combat skill points (sum of Woodcutting, Firemaking, Mining, Fishing, Cooking, and Smelting).
-        int totalNonCombatPoints = woodStats.getLevel() + fireStats.getLevel() + miningStats.getLevel()
-                + fishingStats.getLevel() + cookingStats.getLevel() + smeltingStats.getLevel();
-        String totalSkillLine = centerText(ChatColor.GOLD + "Total: " + totalNonCombatPoints)
+        // Total level (OSRS-style).
+        int totalLevel = attackStats.getLevel() + defenceStats.getLevel() + strengthStats.getLevel()
+                + agilityStats.getLevel() + woodStats.getLevel() + fireStats.getLevel()
+                + miningStats.getLevel() + fishingStats.getLevel() + cookingStats.getLevel()
+                + smeltingStats.getLevel() + smithingStats.getLevel();
+        String totalSkillLine = centerText(ChatColor.GOLD + "Total Level: " + totalLevel)
                 + getInvisible(uniqueCounter++);
         objective.getScore(totalSkillLine).setScore(score--);
+
+        // Add a footer for visual separation.
+        String footer = ChatColor.DARK_GRAY + "────────────";
+        objective.getScore(footer + getInvisible(100)).setScore(0);
 
         // Update the player's scoreboard.
         player.setScoreboard(scoreboard);
@@ -152,6 +166,20 @@ public class StatsLeaderboard {
             padding.append(" ");
         }
         return padding.toString() + text;
+    }
+
+    private String formatSkillCompact(String icon, int level) {
+        return ChatColor.GRAY + icon + " " + ChatColor.YELLOW + padLeft(level, 2);
+    }
+
+    private String padLeft(int value, int targetLength) {
+        String text = String.valueOf(value);
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() + text.length() < targetLength) {
+            sb.append(" ");
+        }
+        sb.append(text);
+        return sb.toString();
     }
 
     public Scoreboard getScoreboard() {

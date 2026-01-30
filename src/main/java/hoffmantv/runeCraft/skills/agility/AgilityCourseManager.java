@@ -2,36 +2,23 @@
 package hoffmantv.runeCraft.skills.agility;
 
 import hoffmantv.runeCraft.RuneCraft;
+import hoffmantv.runeCraft.config.YamlConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
 import java.util.*;
 
 public final class AgilityCourseManager {
-    private static File file;
-    private static FileConfiguration cfg;
+    private static YamlConfigManager configManager;
 
     public static void init(RuneCraft plugin) {
-        file = new File(plugin.getDataFolder(), "agility_courses.yml");
-        if (!file.exists()) {
-            try {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-            } catch (Exception ex) {
-                Bukkit.getLogger().severe("Failed to create agility_courses.yml: " + ex.getMessage());
-            }
-        }
-        cfg = YamlConfiguration.loadConfiguration(file);
+        configManager = new YamlConfigManager(plugin, "agility_courses.yml");
+        configManager.init();
     }
 
     public static void save() {
-        try {
-            cfg.save(file);
-        } catch (Exception ex) {
-            Bukkit.getLogger().severe("Failed to save agility_courses.yml: " + ex.getMessage());
+        if (configManager != null) {
+            configManager.save();
         }
     }
 
@@ -44,12 +31,12 @@ public final class AgilityCourseManager {
             ser.add(n.type.name() + ";" + n.levelReq + ";" + n.xp + ";"
                     + n.loc.getWorld().getName() + ";" + n.loc.getBlockX() + ";" + n.loc.getBlockY() + ";" + n.loc.getBlockZ());
         }
-        cfg.set("courses."+name, ser);
+        configManager.getConfig().set("courses."+name, ser);
         save();
     }
 
     public static List<CourseNode> getCourse(String name) {
-        List<String> ser = cfg.getStringList("courses."+name);
+        List<String> ser = configManager.getConfig().getStringList("courses."+name);
         List<CourseNode> out = new ArrayList<>();
         for (String s : ser) {
             String[] a = s.split(";");

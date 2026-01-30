@@ -1,5 +1,6 @@
 package hoffmantv.runeCraft.commands;
 
+import hoffmantv.runeCraft.skills.SkillStats;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStatsManager;
 import hoffmantv.runeCraft.skills.fishing.FishingStatsManager;
@@ -90,23 +91,14 @@ public class SkillsCommand implements CommandExecutor {
      * @param multiplier The XP multiplier for the skill's leveling formula.
      * @return A list of lore strings.
      */
-    private List<String> getSkillInfo(Object stats, double multiplier) {
+    private List<String> getSkillInfo(SkillStats stats, double multiplier) {
         List<String> info = new ArrayList<>();
         if (stats == null) {
             info.add(ChatColor.RED + "Stats not loaded");
             return info;
         }
-        // Using reflection to allow for different types; alternatively, define an interface for skills.
-        int level = 0;
-        double xp = 0;
-        try {
-            level = (int) stats.getClass().getMethod("getLevel").invoke(stats);
-            xp = (double) stats.getClass().getMethod("getXp").invoke(stats);
-        } catch (Exception e) {
-            Bukkit.getLogger().warning("Failed to read skill stats: " + e.getMessage());
-            info.add(ChatColor.RED + "Error retrieving stats");
-            return info;
-        }
+        int level = stats.getLevel();
+        double xp = stats.getXp();
         double xpForNext = multiplier * Math.pow(level, 2);
         double xpTillNext = xpForNext - xp;
         info.add(ChatColor.GRAY + "Level: " + level);

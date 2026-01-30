@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.scheduler.BukkitTask;
 
 public class TurnBasedCombatListener implements Listener {
 
@@ -26,7 +27,8 @@ public class TurnBasedCombatListener implements Listener {
         LivingEntity mob = (LivingEntity) event.getRightClicked();
         player.sendMessage(ChatColor.GRAY + "You engage the " + mob.getName() + " in turn-based combat!");
         TurnBasedCombatSession session = new TurnBasedCombatSession(player, mob);
-        session.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        BukkitTask task = session.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), task);
     }
 
     @EventHandler
@@ -46,6 +48,7 @@ public class TurnBasedCombatListener implements Listener {
         LivingEntity mob = (LivingEntity) event.getEntity();
         player.sendMessage(ChatColor.GRAY + "You engage the " + mob.getName() + " in turn-based combat!");
         TurnBasedCombatSession session = new TurnBasedCombatSession(player, mob);
-        session.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        BukkitTask task = session.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), task);
     }
 }

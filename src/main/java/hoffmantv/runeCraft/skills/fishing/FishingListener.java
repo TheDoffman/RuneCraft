@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 public class FishingListener implements Listener {
 
@@ -45,6 +46,7 @@ public class FishingListener implements Listener {
 
         // Start the fishing event using the target water block.
         FishingEvent fishingEvent = new FishingEvent(player, targetBlock);
-        fishingEvent.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        BukkitTask task = fishingEvent.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), task);
     }
 }

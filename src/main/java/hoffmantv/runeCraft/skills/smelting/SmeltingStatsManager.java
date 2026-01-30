@@ -1,24 +1,29 @@
 package hoffmantv.runeCraft.skills.smelting;
 
+import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
-public class SmeltingStatsManager {
-    private static final Map<UUID, SmeltingStats> statsMap = new HashMap<>();
+public class SmeltingStatsManager extends BaseStatsManager<SmeltingStats> {
+    private static final SmeltingStatsManager INSTANCE = new SmeltingStatsManager();
 
-    public static void loadPlayer(Player player) {
-        UUID uuid = player.getUniqueId();
-        SmeltingStats stats = SmeltingStats.load(player);
-        statsMap.put(uuid, stats);
+    @Override
+    protected SmeltingStats load(Player player) {
+        return SmeltingStats.load(player);
     }
 
     public static SmeltingStats getStats(Player player) {
-        return statsMap.get(player.getUniqueId());
+        return INSTANCE.getStatsInternal(player);
+    }
+
+    public static void loadPlayer(Player player) {
+        INSTANCE.loadPlayerInternal(player);
     }
 
     public static void removePlayer(Player player) {
-        statsMap.remove(player.getUniqueId());
+        INSTANCE.removePlayerInternal(player);
+    }
+
+    public static void clear() {
+        INSTANCE.clearInternal();
     }
 }

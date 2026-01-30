@@ -1,25 +1,29 @@
 package hoffmantv.runeCraft.skills.firemaking;
 
+import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+public class FiremakingStatsManager extends BaseStatsManager<FiremakingStats> {
+    private static final FiremakingStatsManager INSTANCE = new FiremakingStatsManager();
 
-public class FiremakingStatsManager {
-    private static final Map<UUID, FiremakingStats> statsMap = new HashMap<>();
-
-    public static void loadPlayer(Player player) {
-        UUID uuid = player.getUniqueId();
-        FiremakingStats stats = FiremakingStats.load(player);
-        statsMap.put(uuid, stats);
+    @Override
+    protected FiremakingStats load(Player player) {
+        return FiremakingStats.load(player);
     }
 
     public static FiremakingStats getStats(Player player) {
-        return statsMap.get(player.getUniqueId());
+        return INSTANCE.getStatsInternal(player);
+    }
+
+    public static void loadPlayer(Player player) {
+        INSTANCE.loadPlayerInternal(player);
     }
 
     public static void removePlayer(Player player) {
-        statsMap.remove(player.getUniqueId());
+        INSTANCE.removePlayerInternal(player);
+    }
+
+    public static void clear() {
+        INSTANCE.clearInternal();
     }
 }

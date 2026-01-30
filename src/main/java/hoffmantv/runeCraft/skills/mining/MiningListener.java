@@ -56,14 +56,15 @@ public class MiningListener implements Listener {
             player.sendMessage(ChatColor.RED + "There's already an active mining event on this ore.");
             return;
         }
-        MiningListenerHelper.markActive(clickedBlock);
+        MiningListenerHelper.markActive(clickedBlock, player.getUniqueId());
 
         // Cancel default interaction.
         event.setCancelled(true);
 
         // Start the mining event (simulate mining swings, etc.)
         MiningEvent miningEvent = new MiningEvent(player, clickedBlock);
-        miningEvent.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        BukkitTask task = miningEvent.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), task);
     }
 
     // Helper method to check if a material is an ore.

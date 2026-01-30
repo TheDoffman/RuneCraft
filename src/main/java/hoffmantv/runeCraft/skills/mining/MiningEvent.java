@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +103,7 @@ public class MiningEvent extends BukkitRunnable {
 
         // Schedule ore respawn after a random delay between 5 and 10 seconds.
         int respawnTime = (random.nextInt(6) + 5) * 20; // 5-10 seconds in ticks.
-        Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
+        BukkitTask respawnTask = Bukkit.getScheduler().runTaskLater(RuneCraft.getInstance(), () -> {
             oreBlock.setType(oreType);
             oreBlock.getWorld().spawnParticle(Particle.SMOKE,
                     oreBlock.getLocation().add(0.5, 1, 0.5),
@@ -113,6 +114,7 @@ public class MiningEvent extends BukkitRunnable {
             }
             cleanup();
         }, respawnTime);
+        RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), respawnTask);
     }
 
     private void cleanup() {

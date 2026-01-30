@@ -1,26 +1,33 @@
-// src/main/java/hoffmantv/runeCraft/skills/agility/AgilityStatsManager.java
 package hoffmantv.runeCraft.skills.agility;
 
+import hoffmantv.runeCraft.skills.BaseStatsManager;
 import org.bukkit.entity.Player;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+public final class AgilityStatsManager extends BaseStatsManager<AgilityStats> {
+    private static final AgilityStatsManager INSTANCE = new AgilityStatsManager();
 
-public final class AgilityStatsManager {
-    private static final Map<UUID, AgilityStats> CACHE = new ConcurrentHashMap<>();
-
-    public static AgilityStats get(Player p) {
-        return CACHE.computeIfAbsent(p.getUniqueId(), id -> AgilityStats.load(p));
+    @Override
+    protected AgilityStats load(Player player) {
+        return AgilityStats.load(player);
     }
 
-    public static void save(Player p) {
-        AgilityStats s = CACHE.get(p.getUniqueId());
-        if (s != null) s.save(p);
+    public static AgilityStats get(Player player) {
+        return INSTANCE.getStatsInternal(player);
     }
 
-    public static void unload(Player p) {
-        save(p);
-        CACHE.remove(p.getUniqueId());
+    public static AgilityStats getStats(Player player) {
+        return INSTANCE.getStatsInternal(player);
+    }
+
+    public static void loadPlayer(Player player) {
+        INSTANCE.loadPlayerInternal(player);
+    }
+
+    public static void removePlayer(Player player) {
+        INSTANCE.removePlayerInternal(player);
+    }
+
+    public static void clear() {
+        INSTANCE.clearInternal();
     }
 }

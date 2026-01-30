@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 public class WoodcuttingListener implements Listener {
 
@@ -57,7 +58,8 @@ public class WoodcuttingListener implements Listener {
             // Cancel default interaction and start the woodcutting event.
             event.setCancelled(true);
             WoodcuttingEvent woodcuttingEvent = new WoodcuttingEvent(player, block);
-            woodcuttingEvent.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+            BukkitTask task = woodcuttingEvent.runTaskTimer(RuneCraft.getInstance(), 0L, 20L);
+            RuneCraft.getInstance().getTaskRegistry().registerPlayerTask(player.getUniqueId(), task);
         }
     }
 
