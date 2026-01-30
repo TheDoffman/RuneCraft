@@ -2,6 +2,7 @@ package hoffmantv.runeCraft.mobs;
 
 import hoffmantv.runeCraft.RuneCraft;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -41,10 +42,13 @@ public class MobLevelListener implements Listener {
         mob.setMetadata("mobLevelData", new FixedMetadataValue(RuneCraft.getInstance(), levelData));
 
         // Adjust the mob's maximum health using the health multiplier.
-        double baseHealth = mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
-        double newMaxHealth = baseHealth * levelData.getHealthMultiplier();
-        mob.getAttribute(Attribute.MAX_HEALTH).setBaseValue(newMaxHealth);
-        mob.setHealth(newMaxHealth);
+        AttributeInstance maxHealthAttr = mob.getAttribute(Attribute.MAX_HEALTH);
+        if (maxHealthAttr != null) {
+            double baseHealth = maxHealthAttr.getBaseValue();
+            double newMaxHealth = baseHealth * levelData.getHealthMultiplier();
+            maxHealthAttr.setBaseValue(newMaxHealth);
+            mob.setHealth(newMaxHealth);
+        }
 
         // Set a custom name so the mob's level is visible above its head.
         mob.setCustomName(ChatColor.GRAY + "Lv: " + levelData.getLevel());

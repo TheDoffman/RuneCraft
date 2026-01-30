@@ -9,6 +9,7 @@ import hoffmantv.runeCraft.skills.mining.MiningStatsManager;
 import hoffmantv.runeCraft.skills.smelting.SmeltingStatsManager;
 import hoffmantv.runeCraft.skills.strength.StrengthStatsManager;
 import hoffmantv.runeCraft.skills.woodcutting.WoodcuttingStatsManager;
+import hoffmantv.runeCraft.skills.agility.AgilityStatsManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,6 +29,7 @@ public class PlayerJoinListener implements Listener {
         AttackStatsManager.loadPlayer(player);
         StrengthStatsManager.loadPlayer(player);
         DefenceStatsManager.loadPlayer(player);
+        AgilityStatsManager.get(player);
 
     }
 }

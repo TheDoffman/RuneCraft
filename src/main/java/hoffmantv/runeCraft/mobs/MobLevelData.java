@@ -7,13 +7,8 @@ public class MobLevelData {
 
     public MobLevelData(int level) {
         // Clamp level between 1 and 99.
-        if (level < 1) {
-            level = 1;
-        }
-        if (level > 99) {
-            level = 99;
-        }
-        this.level = level;
+        int clampedLevel = Math.min(99, Math.max(1, level));
+        this.level = clampedLevel;
         // Example formulas:
         // Health multiplier: base 1.0 + (level / 50.0).
         // For level 1: 1.02, for level 99: 1.0 + 99/50 ≈ 2.98.

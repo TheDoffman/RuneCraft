@@ -31,8 +31,15 @@ public class AgilityCommand implements CommandExecutor {
             case "gen" -> {
                 if (args.length < 4) { p.sendMessage(ChatColor.RED + "Usage: /agility gen <course> <radius> <difficulty>"); return true; }
                 String name = args[1];
-                int radius = Math.max(5, Integer.parseInt(args[2]));
-                int diff = Math.min(5, Math.max(1, Integer.parseInt(args[3])));
+                int radius;
+                int diff;
+                try {
+                    radius = Math.max(5, Integer.parseInt(args[2]));
+                    diff = Math.min(5, Math.max(1, Integer.parseInt(args[3])));
+                } catch (NumberFormatException ex) {
+                    p.sendMessage(ChatColor.RED + "Radius and difficulty must be numbers.");
+                    return true;
+                }
                 AgilityProceduralGenerator.generate(p, name, radius, diff);
             }
             case "level" -> {

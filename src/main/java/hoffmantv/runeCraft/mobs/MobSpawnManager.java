@@ -29,7 +29,7 @@ public class MobSpawnManager {
             try {
                 configFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                Bukkit.getLogger().severe("Could not create mobSpawns.yml: " + e.getMessage());
             }
         }
         config = YamlConfiguration.loadConfiguration(configFile);
@@ -49,6 +49,9 @@ public class MobSpawnManager {
                             double y = config.getDouble("spawns." + typeStr + "." + key + ".y");
                             double z = config.getDouble("spawns." + typeStr + "." + key + ".z");
                             String worldName = config.getString("spawns." + typeStr + "." + key + ".world");
+                            if (worldName == null) {
+                                continue;
+                            }
                             World world = Bukkit.getWorld(worldName);
                             if (world != null) {
                                 locations.add(new Location(world, x, y, z));
@@ -74,6 +77,10 @@ public class MobSpawnManager {
      * @param loc     The location where the mob should spawn.
      */
     public static void addMobSpawn(EntityType mobType, Location loc) {
+        if (loc.getWorld() == null) {
+            Bukkit.getLogger().warning("Cannot add mob spawn without a world for " + mobType);
+            return;
+        }
         List<Location> locations = mobSpawnMap.getOrDefault(mobType, new ArrayList<>());
         locations.add(loc);
         mobSpawnMap.put(mobType, locations);
@@ -89,7 +96,7 @@ public class MobSpawnManager {
         try {
             config.save(configFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            Bukkit.getLogger().severe("Could not save mobSpawns.yml: " + e.getMessage());
         }
     }
 

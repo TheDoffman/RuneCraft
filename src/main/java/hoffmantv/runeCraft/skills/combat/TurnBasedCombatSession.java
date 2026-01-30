@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class TurnBasedCombatSession extends BukkitRunnable {
 
@@ -30,7 +31,7 @@ public class TurnBasedCombatSession extends BukkitRunnable {
     private final BossBar mobBar;
 
     // Static map to track active combat sessions per player.
-    private static final Map<String, TurnBasedCombatSession> activeSessions = new HashMap<>();
+    private static final Map<UUID, TurnBasedCombatSession> activeSessions = new HashMap<>();
 
     public TurnBasedCombatSession(Player player, LivingEntity mob) {
         this.player = player;
@@ -39,16 +40,21 @@ public class TurnBasedCombatSession extends BukkitRunnable {
         mobBar.addPlayer(player);
         updateBossBar();
         player.sendMessage(ChatColor.GRAY + "You have entered turn-based combat!");
-        activeSessions.put(player.getUniqueId().toString(), this);
+        activeSessions.put(player.getUniqueId(), this);
     }
 
     public static boolean isInCombat(Player player) {
-        return activeSessions.containsKey(player.getUniqueId().toString());
+        return activeSessions.containsKey(player.getUniqueId());
     }
 
     @Override
     public void run() {
         // End combat if either participant is dead or the distance is too great.
+        if (player.getWorld() != mob.getWorld()) {
+            endCombat();
+            cancel();
+            return;
+        }
         if (player.isDead() || mob.isDead() ||
                 player.getLocation().distanceSquared(mob.getLocation()) > maxDistanceSquared) {
             endCombat();
@@ -147,7 +153,7 @@ public class TurnBasedCombatSession extends BukkitRunnable {
         int baseDamage = 3 + (int)(Math.random() * 4);
 
         // Retrieve the player's overall combat level.
-        int playerCombat = CombatLevelCalculator.getCombatLevel(player);
+        int playerCombat = Math.max(1, CombatLevelCalculator.getCombatLevel(player));
 
         // Retrieve the mob's level from its metadata.
         int mobLevel = 1; // Default value if metadata is missing.
@@ -172,6 +178,9 @@ public class TurnBasedCombatSession extends BukkitRunnable {
 
     private void updateBossBar() {
         double currentHealth = mob.getHealth();
+        if (mob.getAttribute(Attribute.MAX_HEALTH) == null) {
+            return;
+        }
         double maxHealth = mob.getAttribute(Attribute.MAX_HEALTH).getBaseValue();
         double progress = currentHealth / maxHealth;
         progress = Math.max(0, Math.min(progress, 1));
@@ -182,6 +191,14 @@ public class TurnBasedCombatSession extends BukkitRunnable {
     private void endCombat() {
         player.sendMessage(ChatColor.GRAY + "Combat has ended.");
         mobBar.removeAll();
-        activeSessions.remove(player.getUniqueId().toString());
+        activeSessions.remove(player.getUniqueId());
+    }
+
+    public static void shutdownAll() {
+        for (TurnBasedCombatSession session : activeSessions.values()) {
+            session.endCombat();
+            session.cancel();
+        }
+        activeSessions.clear();
     }
 }

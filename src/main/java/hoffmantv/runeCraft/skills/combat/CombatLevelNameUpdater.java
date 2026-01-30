@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class CombatLevelNameUpdater {
 
@@ -12,8 +13,8 @@ public class CombatLevelNameUpdater {
      * Starts a repeating task that updates every online player's display name
      * to include their current combat level.
      */
-    public static void startUpdating() {
-        new BukkitRunnable() {
+    public static BukkitTask startUpdating() {
+        return new BukkitRunnable() {
             @Override
             public void run() {
                 for (Player player : Bukkit.getOnlinePlayers()) {

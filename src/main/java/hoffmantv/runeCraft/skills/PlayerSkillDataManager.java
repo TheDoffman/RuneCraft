@@ -35,8 +35,7 @@ public class PlayerSkillDataManager {
             try {
                 playerDataFile.createNewFile();
             } catch (IOException e) {
-                plugin.getLogger().severe("Could not create playerskills.yml");
-                e.printStackTrace();
+                plugin.getLogger().severe("Could not create playerskills.yml: " + e.getMessage());
             }
         }
         playerDataConfig = YamlConfiguration.loadConfiguration(playerDataFile);
@@ -60,8 +59,7 @@ public class PlayerSkillDataManager {
         try {
             playerDataConfig.save(playerDataFile);
         } catch (IOException e) {
-            plugin.getLogger().severe("Could not save playerskills.yml");
-            e.printStackTrace();
+            plugin.getLogger().severe("Could not save playerskills.yml: " + e.getMessage());
         }
     }
 

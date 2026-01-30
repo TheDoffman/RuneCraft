@@ -35,6 +35,11 @@ public class MiningEvent extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (!player.isOnline() || player.getWorld() != oreBlock.getWorld()) {
+            cleanup();
+            cancel();
+            return;
+        }
         // Cancel if the player moves too far away.
         if (player.getLocation().distanceSquared(oreBlock.getLocation()) > maxDistanceSquared) {
             player.sendMessage("You moved too far away. Mining canceled!");
@@ -103,7 +108,9 @@ public class MiningEvent extends BukkitRunnable {
                     oreBlock.getLocation().add(0.5, 1, 0.5),
                     10, 0.2, 0.2, 0.2, 0.05);
             oreBlock.getWorld().playSound(oreBlock.getLocation(), Sound.BLOCK_FURNACE_FIRE_CRACKLE, 0.7F, 1.0F);
-            player.sendMessage("The ore has respawned.");
+            if (player.isOnline()) {
+                player.sendMessage("The ore has respawned.");
+            }
             cleanup();
         }, respawnTime);
     }

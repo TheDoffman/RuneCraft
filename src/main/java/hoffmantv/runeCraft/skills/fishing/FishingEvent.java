@@ -26,6 +26,10 @@ public class FishingEvent extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (!player.isOnline() || player.getWorld() != waterBlock.getWorld()) {
+            cancel();
+            return;
+        }
         // Cancel if the player moves too far away.
         if (player.getLocation().distanceSquared(waterBlock.getLocation()) > maxDistanceSquared) {
             player.sendMessage("You moved too far away. Fishing canceled!");
@@ -63,9 +67,8 @@ public class FishingEvent extends BukkitRunnable {
         ItemMeta meta = fishItem.getItemMeta();
         meta.setDisplayName(drop.displayName);
 
-        // Create a unique, invisible string using zero-width spaces.
-        // (For example, three zero-width spaces; adjust as needed.)
-        String uniqueInvisible = "\u200B\u200B\u200B";
+        // Create a unique, invisible string using zero-width space and a timestamp.
+        String uniqueInvisible = "\u200B" + System.nanoTime();
         meta.setLore(java.util.Collections.singletonList(uniqueInvisible));
 
         fishItem.setItemMeta(meta);

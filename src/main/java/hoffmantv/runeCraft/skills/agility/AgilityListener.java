@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,12 @@ public class AgilityListener implements Listener {
         if (course == null) return;
 
         List<AgilityCourseManager.CourseNode> nodes = AgilityCourseManager.getCourse(course);
+        if (nodes.isEmpty()) {
+            p.sendMessage(ChatColor.RED + "Agility course not found: " + course);
+            ACTIVE_COURSE.remove(p.getUniqueId());
+            PROGRESS.remove(p.getUniqueId());
+            return;
+        }
         int idx = PROGRESS.getOrDefault(p.getUniqueId(), 0);
         if (idx >= nodes.size()) {
             // Completed
@@ -58,9 +65,19 @@ public class AgilityListener implements Listener {
     }
 
     private boolean isOnNode(Location loc, Location node) {
+        if (loc.getWorld() == null || node.getWorld() == null) {
+            return false;
+        }
         return loc.getWorld() == node.getWorld()
                 && loc.getBlockX() == node.getBlockX()
                 && Math.abs(loc.getY() - node.getY()) < 1.2
                 && loc.getBlockZ() == node.getBlockZ();
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        UUID id = event.getPlayer().getUniqueId();
+        ACTIVE_COURSE.remove(id);
+        PROGRESS.remove(id);
     }
 }

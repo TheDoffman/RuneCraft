@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
@@ -18,6 +19,7 @@ public class FishingSpotsManager {
     private static File configFile;
     private static FileConfiguration config;
     private static final List<Location> fishingSpots = new ArrayList<>();
+    private static BukkitTask effectTask;
 
     public static void init(RuneCraft plugin) {
         configFile = new File(plugin.getDataFolder(), "fishingSpots.yml");
@@ -27,7 +29,7 @@ public class FishingSpotsManager {
                 // Create a new empty fishingSpots.yml file.
                 configFile.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                Bukkit.getLogger().severe("Could not create fishingSpots.yml: " + e.getMessage());
             }
         }
         config = YamlConfiguration.loadConfiguration(configFile);
@@ -62,7 +64,7 @@ public class FishingSpotsManager {
      */
     public static boolean isFishingSpot(Location loc) {
         for (Location spot : fishingSpots) {
-            if (spot.getWorld().equals(loc.getWorld())) {
+            if (spot.getWorld() != null && loc.getWorld() != null && spot.getWorld().equals(loc.getWorld())) {
                 int dx = spot.getBlockX() - loc.getBlockX();
                 int dz = spot.getBlockZ() - loc.getBlockZ();
                 if ((dx * dx + dz * dz) <= 9) { // 3 blocks radius squared (9)
@@ -91,7 +93,7 @@ public class FishingSpotsManager {
         try {
             config.save(configFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            Bukkit.getLogger().severe("Could not save fishingSpots.yml: " + e.getMessage());
         }
     }
 
@@ -99,11 +101,26 @@ public class FishingSpotsManager {
      * Starts a repeating task that displays water splash particles at each fishing spot.
      */
     public static void startEffectTask() {
-        Bukkit.getScheduler().runTaskTimer(RuneCraft.getInstance(), () -> {
+        if (effectTask != null) {
+            effectTask.cancel();
+        }
+        effectTask = Bukkit.getScheduler().runTaskTimer(RuneCraft.getInstance(), () -> {
             for (Location spot : fishingSpots) {
-                spot.getWorld().spawnParticle(Particle.SPLASH, spot.clone().add(0.5, 1, 0.5),
-                        10, 0.5, 0.5, 0.5, 0.1);
+                if (spot.getWorld() != null) {
+                    spot.getWorld().spawnParticle(Particle.SPLASH, spot.clone().add(0.5, 1, 0.5),
+                            10, 0.5, 0.5, 0.5, 0.1);
+                }
             }
         }, 0L, 40L);
+    }
+
+    public static void shutdown() {
+        if (effectTask != null) {
+            effectTask.cancel();
+            effectTask = null;
+        }
+        if (config != null) {
+            saveConfig();
+        }
     }
 }

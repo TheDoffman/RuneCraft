@@ -23,13 +23,13 @@ import java.util.List;
 public class SkillsCommand implements CommandExecutor {
 
     // Multipliers for calculating XP required for next level (customize per skill).
-    private final double combatMultiplier = 50;
-    private final double woodcuttingMultiplier = 50;
-    private final double firemakingMultiplier = 100;
-    private final double miningMultiplier = 100;
-    private final double fishingMultiplier = 75;
-    private final double cookingMultiplier = 50;
-    private final double smeltingMultiplier = 100;
+    private static final double COMBAT_MULTIPLIER = 50;
+    private static final double WOODCUTTING_MULTIPLIER = 50;
+    private static final double FIREMAKING_MULTIPLIER = 100;
+    private static final double MINING_MULTIPLIER = 100;
+    private static final double FISHING_MULTIPLIER = 75;
+    private static final double COOKING_MULTIPLIER = 50;
+    private static final double SMELTING_MULTIPLIER = 100;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -48,17 +48,17 @@ public class SkillsCommand implements CommandExecutor {
         // Combat: IRON_SWORD, Woodcutting: WOODEN_AXE, Firemaking: FLINT_AND_STEEL,
         // Mining: IRON_PICKAXE, Fishing: FISHING_ROD, Cooking: CAKE, Smelting: FURNACE.
         inv.setItem(1, createSkillItem("Woodcutting", Material.WOODEN_AXE,
-                getSkillInfo(WoodcuttingStatsManager.getStats(player), woodcuttingMultiplier)));
+                getSkillInfo(WoodcuttingStatsManager.getStats(player), WOODCUTTING_MULTIPLIER)));
         inv.setItem(2, createSkillItem("Firemaking", Material.FLINT_AND_STEEL,
-                getSkillInfo(FiremakingStatsManager.getStats(player), firemakingMultiplier)));
+                getSkillInfo(FiremakingStatsManager.getStats(player), FIREMAKING_MULTIPLIER)));
         inv.setItem(3, createSkillItem("Mining", Material.IRON_PICKAXE,
-                getSkillInfo(MiningStatsManager.getStats(player), miningMultiplier)));
+                getSkillInfo(MiningStatsManager.getStats(player), MINING_MULTIPLIER)));
         inv.setItem(4, createSkillItem("Fishing", Material.FISHING_ROD,
-                getSkillInfo(FishingStatsManager.getStats(player), fishingMultiplier)));
+                getSkillInfo(FishingStatsManager.getStats(player), FISHING_MULTIPLIER)));
         inv.setItem(5, createSkillItem("Cooking", Material.CAKE,
-                getSkillInfo(CookingStatsManager.getStats(player), cookingMultiplier)));
+                getSkillInfo(CookingStatsManager.getStats(player), COOKING_MULTIPLIER)));
         inv.setItem(6, createSkillItem("Smelting", Material.FURNACE,
-                getSkillInfo(SmeltingStatsManager.getStats(player), smeltingMultiplier)));
+                getSkillInfo(SmeltingStatsManager.getStats(player), SMELTING_MULTIPLIER)));
 
         // Open the inventory GUI for the player.
         player.openInventory(inv);
@@ -103,7 +103,7 @@ public class SkillsCommand implements CommandExecutor {
             level = (int) stats.getClass().getMethod("getLevel").invoke(stats);
             xp = (double) stats.getClass().getMethod("getXp").invoke(stats);
         } catch (Exception e) {
-            e.printStackTrace();
+            Bukkit.getLogger().warning("Failed to read skill stats: " + e.getMessage());
             info.add(ChatColor.RED + "Error retrieving stats");
             return info;
         }

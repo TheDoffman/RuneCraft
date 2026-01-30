@@ -32,6 +32,10 @@ public class WoodcuttingEvent extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (!player.isOnline() || player.getWorld() != initialBlock.getWorld()) {
+            cancel();
+            return;
+        }
         // Check if the player has moved too far from the initial block.
         if (player.getLocation().distanceSquared(initialBlock.getLocation()) > maxChopDistanceSquared) {
             player.sendMessage("You moved too far from the tree. Chopping canceled!");

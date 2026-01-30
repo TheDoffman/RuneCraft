@@ -17,18 +17,30 @@ public final class AgilityCourseManager {
     public static void init(RuneCraft plugin) {
         file = new File(plugin.getDataFolder(), "agility_courses.yml");
         if (!file.exists()) {
-            try { file.getParentFile().mkdirs(); file.createNewFile(); } catch (Exception ignored) {}
+            try {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (Exception ex) {
+                Bukkit.getLogger().severe("Failed to create agility_courses.yml: " + ex.getMessage());
+            }
         }
         cfg = YamlConfiguration.loadConfiguration(file);
     }
 
     public static void save() {
-        try { cfg.save(file); } catch (Exception ignored) {}
+        try {
+            cfg.save(file);
+        } catch (Exception ex) {
+            Bukkit.getLogger().severe("Failed to save agility_courses.yml: " + ex.getMessage());
+        }
     }
 
     public static void setCourse(String name, List<CourseNode> nodes) {
         List<String> ser = new ArrayList<>();
         for (CourseNode n : nodes) {
+            if (n.loc.getWorld() == null) {
+                continue;
+            }
             ser.add(n.type.name() + ";" + n.levelReq + ";" + n.xp + ";"
                     + n.loc.getWorld().getName() + ";" + n.loc.getBlockX() + ";" + n.loc.getBlockY() + ";" + n.loc.getBlockZ());
         }
@@ -41,11 +53,21 @@ public final class AgilityCourseManager {
         List<CourseNode> out = new ArrayList<>();
         for (String s : ser) {
             String[] a = s.split(";");
-            AgilityObstacleType t = AgilityObstacleType.valueOf(a[0]);
-            int lvl = Integer.parseInt(a[1]);
-            double xp = Double.parseDouble(a[2]);
-            Location l = new Location(Bukkit.getWorld(a[3]), Integer.parseInt(a[4]), Integer.parseInt(a[5]), Integer.parseInt(a[6]));
-            out.add(new CourseNode(t, lvl, xp, l));
+            if (a.length < 7) {
+                continue;
+            }
+            try {
+                AgilityObstacleType t = AgilityObstacleType.valueOf(a[0]);
+                int lvl = Integer.parseInt(a[1]);
+                double xp = Double.parseDouble(a[2]);
+                if (Bukkit.getWorld(a[3]) == null) {
+                    continue;
+                }
+                Location l = new Location(Bukkit.getWorld(a[3]), Integer.parseInt(a[4]), Integer.parseInt(a[5]), Integer.parseInt(a[6]));
+                out.add(new CourseNode(t, lvl, xp, l));
+            } catch (Exception ex) {
+                Bukkit.getLogger().warning("Invalid agility course entry: " + s);
+            }
         }
         return out;
     }

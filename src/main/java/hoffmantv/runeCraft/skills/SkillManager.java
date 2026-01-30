@@ -26,7 +26,7 @@ public class SkillManager {
             AttackStatsManager.loadPlayer(player);
             StrengthStatsManager.loadPlayer(player);
             DefenceStatsManager.loadPlayer(player);
-            AgilityStatsManager.unload(player);
+            AgilityStatsManager.get(player);
         }
     }
 }

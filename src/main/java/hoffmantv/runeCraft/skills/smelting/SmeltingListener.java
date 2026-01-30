@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.Lightable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -51,20 +52,14 @@ public class SmeltingListener implements Listener {
         event.setCancelled(true);
         player.sendMessage(ChatColor.GRAY + "You insert the ore into the furnace...");
 
-        // Preserve the original furnace orientation.
+        // Preserve the original furnace orientation and lit state.
         Directional originalData = (Directional) clickedBlock.getBlockData();
+        boolean wasLit = clickedBlock.getBlockData() instanceof Lightable lightable && lightable.isLit();
 
-        // Change the furnace to its lit variant while preserving orientation.
-        Material litType = null;
-        if (originalType == Material.FURNACE) {
-            litType = Material.FURNACE;
-        } else if (originalType == Material.FURNACE) {
-            litType = Material.BLAST_FURNACE;
-        }
-        if (litType != null) {
-            Directional litData = (Directional) Bukkit.createBlockData(litType);
-            litData.setFacing(originalData.getFacing());
-            clickedBlock.setBlockData(litData);
+        // Light the furnace while preserving orientation.
+        if (clickedBlock.getBlockData() instanceof Lightable lightable) {
+            lightable.setLit(true);
+            clickedBlock.setBlockData(lightable);
         }
 
         // Capture the raw item's custom display name (if any).
@@ -107,7 +102,12 @@ public class SmeltingListener implements Listener {
                 // Revert the furnace back to its original unlit state while preserving orientation.
                 Directional revertData = (Directional) Bukkit.createBlockData(originalType);
                 revertData.setFacing(originalData.getFacing());
-                clickedBlock.setBlockData(revertData);
+                if (revertData instanceof Lightable lightable) {
+                    lightable.setLit(wasLit);
+                    clickedBlock.setBlockData(lightable);
+                } else {
+                    clickedBlock.setBlockData(revertData);
+                }
 
                 // Get the smelted result.
                 Material result = SmeltingRequirements.getSmeltedResult(rawMaterial);
@@ -118,6 +118,10 @@ public class SmeltingListener implements Listener {
                 // Create the smelted item.
                 ItemStack smeltedItem = new ItemStack(result, 1);
                 ItemMeta meta = smeltedItem.getItemMeta();
+                if (meta == null) {
+                    player.sendMessage(ChatColor.RED + "Could not create smelted item meta.");
+                    return;
+                }
                 String newName;
                 if (finalRawDisplayName != null) {
                     newName = finalRawDisplayName.replace("Ore", "Bar");
