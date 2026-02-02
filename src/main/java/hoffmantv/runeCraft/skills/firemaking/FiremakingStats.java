@@ -4,8 +4,6 @@ import hoffmantv.runeCraft.skills.BaseStats;
 import org.bukkit.entity.Player;
 
 public class FiremakingStats extends BaseStats {
-    private static final double XP_MULTIPLIER = 100;
-
     public static FiremakingStats load(Player player) {
         FiremakingStats stats = new FiremakingStats();
         stats.loadFromPlayer(player);
@@ -20,10 +18,5 @@ public class FiremakingStats extends BaseStats {
     @Override
     protected String getSkillDisplayName() {
         return "Firemaking";
-    }
-
-    @Override
-    protected double getXpMultiplier() {
-        return XP_MULTIPLIER;
     }
 }

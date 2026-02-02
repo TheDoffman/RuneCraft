@@ -4,8 +4,6 @@ import hoffmantv.runeCraft.skills.BaseStats;
 import org.bukkit.entity.Player;
 
 public class SmeltingStats extends BaseStats {
-    private static final double XP_MULTIPLIER = 100;
-
     public static SmeltingStats load(Player player) {
         SmeltingStats stats = new SmeltingStats();
         stats.loadFromPlayer(player);
@@ -20,10 +18,5 @@ public class SmeltingStats extends BaseStats {
     @Override
     protected String getSkillDisplayName() {
         return "Smelting";
-    }
-
-    @Override
-    protected double getXpMultiplier() {
-        return XP_MULTIPLIER;
     }
 }

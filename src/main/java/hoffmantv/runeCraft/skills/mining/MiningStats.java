@@ -4,8 +4,6 @@ import hoffmantv.runeCraft.skills.BaseStats;
 import org.bukkit.entity.Player;
 
 public class MiningStats extends BaseStats {
-    private static final double XP_MULTIPLIER = 100;
-
     public static MiningStats load(Player player) {
         MiningStats stats = new MiningStats();
         stats.loadFromPlayer(player);
@@ -20,10 +18,5 @@ public class MiningStats extends BaseStats {
     @Override
     protected String getSkillDisplayName() {
         return "Mining";
-    }
-
-    @Override
-    protected double getXpMultiplier() {
-        return XP_MULTIPLIER;
     }
 }

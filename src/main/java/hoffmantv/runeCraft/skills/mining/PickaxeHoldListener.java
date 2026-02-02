@@ -57,15 +57,15 @@ public class PickaxeHoldListener implements Listener {
             case WOODEN_PICKAXE:
                 return 1;
             case STONE_PICKAXE:
-                return 10;
+                return 1;
             case IRON_PICKAXE:
-                return 20;
+                return 6;
             case GOLDEN_PICKAXE:
-                return 30;
+                return 21;
             case DIAMOND_PICKAXE:
-                return 40;
+                return 31;
             case NETHERITE_PICKAXE:
-                return 50;
+                return 61;
             default:
                 return 1;
         }

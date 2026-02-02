@@ -12,15 +12,15 @@ public class WoodcuttingRequirements {
             case WOODEN_AXE:
                 return 1;
             case STONE_AXE:
-                return 10;
+                return 1;
             case IRON_AXE:
-                return 15;
+                return 6;
             case GOLDEN_AXE:
-                return 20;
+                return 21;
             case DIAMOND_AXE:
-                return 30;
+                return 31;
             case NETHERITE_AXE:
-                return 40;
+                return 61;
             default:
                 return 1;
         }
@@ -34,15 +34,15 @@ public class WoodcuttingRequirements {
             case OAK_LOG:
                 return 1;
             case SPRUCE_LOG:
-                return 10;
-            case BIRCH_LOG:
                 return 15;
-            case JUNGLE_LOG:
-                return 20;
-            case ACACIA_LOG:
+            case BIRCH_LOG:
                 return 30;
+            case JUNGLE_LOG:
+                return 45;
+            case ACACIA_LOG:
+                return 60;
             case DARK_OAK_LOG:
-                return 40;
+                return 75;
             default:
                 return 1;
         }

@@ -1,6 +1,7 @@
 package hoffmantv.runeCraft.commands;
 
 import hoffmantv.runeCraft.RuneCraft;
+import hoffmantv.runeCraft.skills.OsrsXpTable;
 import hoffmantv.runeCraft.skills.agility.*;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -49,7 +50,7 @@ public class AgilityCommand implements CommandExecutor {
             case "level" -> {
                 AgilityStats stats = AgilityStatsManager.get(p);
                 p.sendMessage(ChatColor.GOLD + "Agility Level: " + stats.getLevel() + ChatColor.GRAY + " (" + (int)stats.getXp() + " xp)");
-                p.sendMessage(ChatColor.GRAY + "Next lvl at: " + (int)AgilityXP.levelToXp(stats.getLevel()+1));
+                p.sendMessage(ChatColor.GRAY + "Next lvl at: " + OsrsXpTable.xpForLevel(stats.getLevel() + 1));
             }
             default -> p.sendMessage(ChatColor.RED + "Unknown subcommand.");
         }

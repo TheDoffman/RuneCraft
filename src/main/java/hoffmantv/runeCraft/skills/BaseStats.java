@@ -1,6 +1,5 @@
 package hoffmantv.runeCraft.skills;
 
-import hoffmantv.runeCraft.RuneCraft;
 import org.bukkit.entity.Player;
 
 public abstract class BaseStats implements SkillStats {
@@ -9,14 +8,9 @@ public abstract class BaseStats implements SkillStats {
 
     protected abstract String getSkillKey();
     protected abstract String getSkillDisplayName();
-    protected abstract double getXpMultiplier();
 
     protected double transformIncomingXp(double amount) {
         return amount;
-    }
-
-    protected double xpForNextLevel() {
-        return Math.pow(level, 2) * getXpMultiplier();
     }
 
     protected void onLevelUp(Player player) {
@@ -29,10 +23,21 @@ public abstract class BaseStats implements SkillStats {
 
     public void loadFromPlayer(Player player) {
         String id = player.getUniqueId().toString();
-        this.xp = PlayerSkillDataManager.getPlayerSkillXP(id, getSkillKey());
-        this.level = PlayerSkillDataManager.getPlayerSkillRank(id, getSkillKey());
-        if (this.level < 1) {
-            this.level = 1;
+        double storedXp = PlayerSkillDataManager.getPlayerSkillXP(id, getSkillKey());
+        int storedLevel = PlayerSkillDataManager.getPlayerSkillRank(id, getSkillKey());
+        if (storedLevel < 1) {
+            storedLevel = 1;
+        }
+
+        double minXpForLevel = OsrsXpTable.xpForLevel(storedLevel);
+        if (storedXp < minXpForLevel) {
+            this.xp = minXpForLevel + storedXp;
+        } else {
+            this.xp = storedXp;
+        }
+        this.level = OsrsXpTable.levelForXp(this.xp);
+        if (this.level < storedLevel) {
+            this.level = storedLevel;
         }
     }
 
@@ -45,18 +50,20 @@ public abstract class BaseStats implements SkillStats {
 
     public void addExperience(double amount, Player player) {
         double xpReward = transformIncomingXp(amount);
-        if (level >= 99) {
+        if (level >= OsrsXpTable.getMaxLevel()) {
             this.xp += xpReward;
             save(player);
             return;
         }
         this.xp += xpReward;
-        while (this.xp >= xpForNextLevel() && level < 99) {
-            this.xp -= xpForNextLevel();
-            level++;
-            onLevelUp(player);
-            if (this.level % 5 == 0) {
-                onMilestoneLevel(player);
+        int newLevel = OsrsXpTable.levelForXp(this.xp);
+        if (newLevel > level) {
+            for (int lvl = level + 1; lvl <= newLevel; lvl++) {
+                level = lvl;
+                onLevelUp(player);
+                if (this.level % 5 == 0) {
+                    onMilestoneLevel(player);
+                }
             }
         }
         save(player);

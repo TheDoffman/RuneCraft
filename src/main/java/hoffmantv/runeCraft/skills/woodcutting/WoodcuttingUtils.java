@@ -10,15 +10,15 @@ public class WoodcuttingUtils {
             case OAK_LOG:
                 return 1;
             case SPRUCE_LOG:
-                return 10;
-            case BIRCH_LOG:
-                return 5;
-            case JUNGLE_LOG:
                 return 15;
+            case BIRCH_LOG:
+                return 30;
+            case JUNGLE_LOG:
+                return 45;
             case ACACIA_LOG:
-                return 20;
+                return 60;
             case DARK_OAK_LOG:
-                return 25;
+                return 75;
             default:
                 return 1;
         }
@@ -28,19 +28,19 @@ public class WoodcuttingUtils {
     public static double getXpReward(Material log) {
         switch(log) {
             case OAK_LOG:
-                return 10;
+                return 25.0;
             case SPRUCE_LOG:
-                return 15;
+                return 37.5;
             case BIRCH_LOG:
-                return 12;
+                return 67.5;
             case JUNGLE_LOG:
-                return 20;
+                return 100.0;
             case ACACIA_LOG:
-                return 25;
+                return 175.0;
             case DARK_OAK_LOG:
-                return 30;
+                return 250.0;
             default:
-                return 10;
+                return 25.0;
         }
     }
 }

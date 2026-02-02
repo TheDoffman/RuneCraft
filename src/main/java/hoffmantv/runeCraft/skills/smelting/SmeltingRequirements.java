@@ -14,23 +14,23 @@ public class SmeltingRequirements {
     public static int getRequiredLevel(Material rawMaterial) {
         switch (rawMaterial) {
             case IRON_ORE:
-                return 1;
+                return 15;
             case GOLD_ORE:
-                return 10;
+                return 40;
             case NETHER_QUARTZ_ORE:
-                return 1;
+                return 20;
             case COAL:
                 return 1;
             case DIAMOND_ORE:
-                return 20;
+                return 85;
             case COPPER_ORE:
-                return 1;
+                return 30;
             case REDSTONE_ORE:
-                return 5;
+                return 50;
             case EMERALD_ORE:
-                return 15;
+                return 1;
             case LAPIS_ORE:
-                return 5;
+                return 70;
             default:
                 if (rawMaterial.name().endsWith("_ORE")) {
                     return 1;
@@ -66,7 +66,7 @@ public class SmeltingRequirements {
             case REDSTONE_ORE:
                 return Material.REDSTONE;
             case EMERALD_ORE:
-                return Material.EMERALD;
+                return null;
             case LAPIS_ORE:
                 return Material.LAPIS_LAZULI;
             default:
@@ -91,26 +91,24 @@ public class SmeltingRequirements {
     public static double getXpReward(Material rawMaterial) {
         switch (rawMaterial) {
             case IRON_ORE:
-                return 10.0;
+                return 12.5;
             case GOLD_ORE:
-                return 15.0;
+                return 22.5;
             case NETHER_QUARTZ_ORE:
-                return 5.0;
+                return 13.7;
             case COAL:
-                return 4.0;
+                return 6.2;
             case DIAMOND_ORE:
-                return 20.0;
+                return 50.0;
             case COPPER_ORE:
-                return 7.0;
+                return 17.5;
             case REDSTONE_ORE:
-                return 8.0;
-            case EMERALD_ORE:
-                return 12.0;
+                return 30.0;
             case LAPIS_ORE:
-                return 6.0;
+                return 37.5;
             default:
                 if (rawMaterial.name().endsWith("_ORE")) {
-                    return 8.0;
+                    return 0;
                 }
                 return 0;
         }

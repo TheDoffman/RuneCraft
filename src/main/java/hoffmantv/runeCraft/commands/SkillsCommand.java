@@ -1,6 +1,7 @@
 package hoffmantv.runeCraft.commands;
 
 import hoffmantv.runeCraft.skills.SkillStats;
+import hoffmantv.runeCraft.skills.OsrsXpTable;
 import hoffmantv.runeCraft.skills.cooking.CookingStatsManager;
 import hoffmantv.runeCraft.skills.firemaking.FiremakingStatsManager;
 import hoffmantv.runeCraft.skills.fishing.FishingStatsManager;
@@ -23,15 +24,6 @@ import java.util.List;
 
 public class SkillsCommand implements CommandExecutor {
 
-    // Multipliers for calculating XP required for next level (customize per skill).
-    private static final double COMBAT_MULTIPLIER = 50;
-    private static final double WOODCUTTING_MULTIPLIER = 50;
-    private static final double FIREMAKING_MULTIPLIER = 100;
-    private static final double MINING_MULTIPLIER = 100;
-    private static final double FISHING_MULTIPLIER = 75;
-    private static final double COOKING_MULTIPLIER = 50;
-    private static final double SMELTING_MULTIPLIER = 100;
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         // Only allow players to run this command.
@@ -49,17 +41,17 @@ public class SkillsCommand implements CommandExecutor {
         // Combat: IRON_SWORD, Woodcutting: WOODEN_AXE, Firemaking: FLINT_AND_STEEL,
         // Mining: IRON_PICKAXE, Fishing: FISHING_ROD, Cooking: CAKE, Smelting: FURNACE.
         inv.setItem(1, createSkillItem("Woodcutting", Material.WOODEN_AXE,
-                getSkillInfo(WoodcuttingStatsManager.getStats(player), WOODCUTTING_MULTIPLIER)));
+                getSkillInfo(WoodcuttingStatsManager.getStats(player))));
         inv.setItem(2, createSkillItem("Firemaking", Material.FLINT_AND_STEEL,
-                getSkillInfo(FiremakingStatsManager.getStats(player), FIREMAKING_MULTIPLIER)));
+                getSkillInfo(FiremakingStatsManager.getStats(player))));
         inv.setItem(3, createSkillItem("Mining", Material.IRON_PICKAXE,
-                getSkillInfo(MiningStatsManager.getStats(player), MINING_MULTIPLIER)));
+                getSkillInfo(MiningStatsManager.getStats(player))));
         inv.setItem(4, createSkillItem("Fishing", Material.FISHING_ROD,
-                getSkillInfo(FishingStatsManager.getStats(player), FISHING_MULTIPLIER)));
+                getSkillInfo(FishingStatsManager.getStats(player))));
         inv.setItem(5, createSkillItem("Cooking", Material.CAKE,
-                getSkillInfo(CookingStatsManager.getStats(player), COOKING_MULTIPLIER)));
+                getSkillInfo(CookingStatsManager.getStats(player))));
         inv.setItem(6, createSkillItem("Smelting", Material.FURNACE,
-                getSkillInfo(SmeltingStatsManager.getStats(player), SMELTING_MULTIPLIER)));
+                getSkillInfo(SmeltingStatsManager.getStats(player))));
 
         // Open the inventory GUI for the player.
         player.openInventory(inv);
@@ -91,7 +83,7 @@ public class SkillsCommand implements CommandExecutor {
      * @param multiplier The XP multiplier for the skill's leveling formula.
      * @return A list of lore strings.
      */
-    private List<String> getSkillInfo(SkillStats stats, double multiplier) {
+    private List<String> getSkillInfo(SkillStats stats) {
         List<String> info = new ArrayList<>();
         if (stats == null) {
             info.add(ChatColor.RED + "Stats not loaded");
@@ -99,8 +91,8 @@ public class SkillsCommand implements CommandExecutor {
         }
         int level = stats.getLevel();
         double xp = stats.getXp();
-        double xpForNext = multiplier * Math.pow(level, 2);
-        double xpTillNext = xpForNext - xp;
+        double xpForNext = OsrsXpTable.xpForLevel(level + 1);
+        double xpTillNext = Math.max(0, xpForNext - xp);
         info.add(ChatColor.GRAY + "Level: " + level);
         info.add(ChatColor.GRAY + "Total XP: " + xp);
         info.add(ChatColor.GRAY + "XP till next level: " + (int) xpTillNext);

@@ -48,6 +48,11 @@ public class SmeltingListener implements Listener {
                     ") is too low to smelt this item. Required: " + requiredLevel);
             return;
         }
+        Material smeltedResult = SmeltingRequirements.getSmeltedResult(rawMaterial);
+        if (smeltedResult == null) {
+            player.sendMessage(ChatColor.RED + "This item cannot be smelted.");
+            return;
+        }
 
         // Cancel default furnace interaction.
         event.setCancelled(true);
@@ -112,13 +117,8 @@ public class SmeltingListener implements Listener {
                 }
 
                 // Get the smelted result.
-                Material result = SmeltingRequirements.getSmeltedResult(rawMaterial);
-                if (result == null) {
-                    player.sendMessage(ChatColor.RED + "This item cannot be smelted.");
-                    return;
-                }
                 // Create the smelted item.
-                ItemStack smeltedItem = new ItemStack(result, 1);
+                ItemStack smeltedItem = new ItemStack(smeltedResult, 1);
                 ItemMeta meta = smeltedItem.getItemMeta();
                 if (meta == null) {
                     player.sendMessage(ChatColor.RED + "Could not create smelted item meta.");
@@ -128,7 +128,7 @@ public class SmeltingListener implements Listener {
                 if (finalRawDisplayName != null) {
                     newName = finalRawDisplayName.replace("Ore", "Bar");
                 } else {
-                    newName = result.name().replace("_ORE", "_BAR");
+                    newName = smeltedResult.name().replace("_ORE", "_BAR");
                     newName = ChatColor.GREEN + newName;
                 }
                 meta.setDisplayName(newName);

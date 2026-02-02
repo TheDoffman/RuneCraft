@@ -21,17 +21,12 @@ public class AgilityStats extends BaseStats {
     }
 
     @Override
-    protected double getXpMultiplier() {
-        return 0;
+    protected void onLevelUp(Player player) {
+        AgilityUI.levelUpToast(player, level);
     }
 
     @Override
-    public void addExperience(double amount, Player player) {
-        xp += amount;
-        while (level < 99 && xp >= AgilityXP.levelToXp(level + 1)) {
-            level++;
-            AgilityUI.levelUpToast(player, level);
-        }
-        save(player);
+    protected void onMilestoneLevel(Player player) {
+        // Agility uses a custom toast per level.
     }
 }

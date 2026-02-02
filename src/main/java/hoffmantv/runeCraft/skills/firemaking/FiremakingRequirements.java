@@ -12,15 +12,15 @@ public class FiremakingRequirements {
             case OAK_LOG:
                 return 1;
             case SPRUCE_LOG:
-                return 5;
-            case BIRCH_LOG:
-                return 10;
-            case JUNGLE_LOG:
                 return 15;
-            case ACACIA_LOG:
-                return 20;
-            case DARK_OAK_LOG:
+            case BIRCH_LOG:
                 return 30;
+            case JUNGLE_LOG:
+                return 45;
+            case ACACIA_LOG:
+                return 60;
+            case DARK_OAK_LOG:
+                return 75;
             default:
                 return 1;
         }
@@ -32,19 +32,19 @@ public class FiremakingRequirements {
     public static double getXpReward(Material log) {
         switch (log) {
             case OAK_LOG:
-                return 8;
+                return 40.0;
             case SPRUCE_LOG:
-                return 12;
+                return 60.0;
             case BIRCH_LOG:
-                return 10;
+                return 90.0;
             case JUNGLE_LOG:
-                return 15;
+                return 135.0;
             case ACACIA_LOG:
-                return 18;
+                return 202.5;
             case DARK_OAK_LOG:
-                return 22;
+                return 303.8;
             default:
-                return 5;
+                return 40.0;
         }
     }
 }

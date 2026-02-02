@@ -25,15 +25,15 @@ public class SmithingMenu {
         int playerLevel = stats.getLevel();
 
         // Add Smithable Items
-        addSmithingItem(menu, Material.IRON_SWORD, 5, playerLevel, "Iron Sword");
-        addSmithingItem(menu, Material.IRON_PICKAXE, 10, playerLevel, "Iron Pickaxe");
-        addSmithingItem(menu, Material.IRON_CHESTPLATE, 20, playerLevel, "Iron Chestplate");
-        addSmithingItem(menu, Material.GOLDEN_SWORD, 15, playerLevel, "Golden Sword");
-        addSmithingItem(menu, Material.GOLDEN_PICKAXE, 18, playerLevel, "Golden Pickaxe");
-        addSmithingItem(menu, Material.GOLDEN_CHESTPLATE, 30, playerLevel, "Golden Chestplate");
-        addSmithingItem(menu, Material.DIAMOND_SWORD, 40, playerLevel, "Diamond Sword");
-        addSmithingItem(menu, Material.DIAMOND_PICKAXE, 50, playerLevel, "Diamond Pickaxe");
-        addSmithingItem(menu, Material.DIAMOND_CHESTPLATE, 60, playerLevel, "Diamond Chestplate");
+        addSmithingItem(menu, Material.IRON_SWORD, 20, playerLevel, "Iron Sword");
+        addSmithingItem(menu, Material.IRON_PICKAXE, 20, playerLevel, "Iron Pickaxe");
+        addSmithingItem(menu, Material.IRON_CHESTPLATE, 33, playerLevel, "Iron Chestplate");
+        addSmithingItem(menu, Material.GOLDEN_SWORD, 30, playerLevel, "Golden Sword");
+        addSmithingItem(menu, Material.GOLDEN_PICKAXE, 30, playerLevel, "Golden Pickaxe");
+        addSmithingItem(menu, Material.GOLDEN_CHESTPLATE, 48, playerLevel, "Golden Chestplate");
+        addSmithingItem(menu, Material.DIAMOND_SWORD, 60, playerLevel, "Diamond Sword");
+        addSmithingItem(menu, Material.DIAMOND_PICKAXE, 60, playerLevel, "Diamond Pickaxe");
+        addSmithingItem(menu, Material.DIAMOND_CHESTPLATE, 99, playerLevel, "Diamond Chestplate");
 
         player.openInventory(menu);
     }
@@ -99,7 +99,7 @@ public class SmithingMenu {
         player.sendMessage(ChatColor.GREEN + "You smith a " + displayName + "!");
 
         // Award XP
-        double xpReward = 50.0 + (barsNeeded * 10); // Reward scales with bars used
+        double xpReward = barsNeeded * getXpPerBar(barType);
         stats.addExperience(xpReward, player);
         stats.save(player);
 
@@ -111,15 +111,15 @@ public class SmithingMenu {
 
     private static int getRequiredLevel(Material material) {
         switch (material) {
-            case IRON_SWORD: return 5;
-            case IRON_PICKAXE: return 10;
-            case IRON_CHESTPLATE: return 20;
-            case GOLDEN_SWORD: return 15;
-            case GOLDEN_PICKAXE: return 18;
-            case GOLDEN_CHESTPLATE: return 30;
-            case DIAMOND_SWORD: return 40;
-            case DIAMOND_PICKAXE: return 50;
-            case DIAMOND_CHESTPLATE: return 60;
+            case IRON_SWORD: return 20;
+            case IRON_PICKAXE: return 20;
+            case IRON_CHESTPLATE: return 33;
+            case GOLDEN_SWORD: return 30;
+            case GOLDEN_PICKAXE: return 30;
+            case GOLDEN_CHESTPLATE: return 48;
+            case DIAMOND_SWORD: return 60;
+            case DIAMOND_PICKAXE: return 60;
+            case DIAMOND_CHESTPLATE: return 99;
             default: return 1;
         }
     }
@@ -154,6 +154,19 @@ public class SmithingMenu {
                 return Material.DIAMOND;
             default:
                 return Material.IRON_INGOT;
+        }
+    }
+
+    private static double getXpPerBar(Material barMaterial) {
+        switch (barMaterial) {
+            case IRON_INGOT:
+                return 25.0;
+            case GOLD_INGOT:
+                return 37.5;
+            case DIAMOND:
+                return 75.0;
+            default:
+                return 12.5;
         }
     }
 

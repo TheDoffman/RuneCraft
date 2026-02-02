@@ -1,6 +1,9 @@
 package hoffmantv.runeCraft.skills.cooking;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class CookingRequirements {
 
@@ -12,24 +15,84 @@ public class CookingRequirements {
      * Example:
      * - RAW_BEEF becomes "Cooked Beef" (Material.COOKED_BEEF).
      */
-    public static FoodData getFoodData(Material rawFood) {
+    public static FoodData getFoodData(ItemStack rawItem) {
+        if (rawItem == null) {
+            return null;
+        }
+        Material rawFood = rawItem.getType();
         String rawName = rawFood.toString();
-        // You can include specific cases here for custom mappings if needed.
+        String displayName = getDisplayName(rawItem);
+
+        FoodData fishData = getFishData(displayName);
+        if (fishData != null) {
+            return fishData;
+        }
+
         switch (rawFood) {
             case COD:
-                // For fish, we may want to use custom mappings:
-                return new FoodData("Cooked Cod", 1, 5, Material.COOKED_COD);
+                return new FoodData("Cooked Shrimp", 1, 30, Material.COOKED_COD);
             case SALMON:
-                return new FoodData("Cooked Salmon", 1, 7, Material.COOKED_SALMON);
+                return new FoodData("Cooked Salmon", 25, 90, Material.COOKED_SALMON);
+            case TROPICAL_FISH:
+                return new FoodData("Cooked Lobster", 40, 120, Material.COOKED_COD);
+            case PUFFERFISH:
+                return new FoodData("Cooked Monkfish", 62, 150, Material.COOKED_COD);
+            case RAW_BEEF:
+                return new FoodData("Cooked Beef", 1, 30, Material.COOKED_BEEF);
+            case RAW_CHICKEN:
+                return new FoodData("Cooked Chicken", 1, 30, Material.COOKED_CHICKEN);
+            case RAW_PORKCHOP:
+                return new FoodData("Cooked Porkchop", 1, 30, Material.COOKED_PORKCHOP);
+            case RAW_MUTTON:
+                return new FoodData("Cooked Mutton", 1, 30, Material.COOKED_MUTTON);
+            case RAW_RABBIT:
+                return new FoodData("Cooked Rabbit", 1, 30, Material.COOKED_RABBIT);
             default:
                 if (rawName.startsWith("RAW_")) {
-                    String displayName = "Cooked " + rawName.substring(4).replace('_', ' ');
+                    String cookedName = "Cooked " + rawName.substring(4).replace('_', ' ');
                     Material cookedMaterial = convertRawToCooked(rawFood);
-                    // Default required level and XP reward; adjust as needed.
-                    return new FoodData(displayName, 1, 5, cookedMaterial);
+                    return new FoodData(cookedName, 1, 30, cookedMaterial);
                 }
-                // Fallback: if not raw, simply return a generic cooked version.
-                return new FoodData("Cooked " + rawName, 1, 5, rawFood);
+                return null;
+        }
+    }
+
+    public static FoodData getFoodData(Material rawFood) {
+        if (rawFood == null) {
+            return null;
+        }
+        return getFoodData(new ItemStack(rawFood));
+    }
+
+    private static String getDisplayName(ItemStack itemStack) {
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null || !meta.hasDisplayName()) {
+            return null;
+        }
+        return ChatColor.stripColor(meta.getDisplayName());
+    }
+
+    private static FoodData getFishData(String displayName) {
+        if (displayName == null) {
+            return null;
+        }
+        switch (displayName) {
+            case "Raw Shrimp":
+                return new FoodData("Cooked Shrimp", 1, 30, Material.COOKED_COD);
+            case "Raw Trout":
+                return new FoodData("Cooked Trout", 15, 70, Material.COOKED_SALMON);
+            case "Raw Salmon":
+                return new FoodData("Cooked Salmon", 25, 90, Material.COOKED_SALMON);
+            case "Raw Lobster":
+                return new FoodData("Cooked Lobster", 40, 120, Material.COOKED_COD);
+            case "Raw Swordfish":
+                return new FoodData("Cooked Swordfish", 45, 140, Material.COOKED_COD);
+            case "Raw Monkfish":
+                return new FoodData("Cooked Monkfish", 62, 150, Material.COOKED_COD);
+            case "Raw Shark":
+                return new FoodData("Cooked Shark", 80, 210, Material.COOKED_COD);
+            default:
+                return null;
         }
     }
 

@@ -8,23 +8,23 @@ public class MiningRequirements {
     public static int getRequiredLevel(Material material) {
         switch(material) {
             case COAL_ORE:
-                return 1;
+                return 1; // Bronze ore tier
             case IRON_ORE:
-                return 10;
-            case GOLD_ORE:
-                return 20;
-            case REDSTONE_ORE:
                 return 15;
+            case GOLD_ORE:
+                return 40;
+            case REDSTONE_ORE:
+                return 55;
             case LAPIS_ORE:
-                return 20;
+                return 70;
             case DIAMOND_ORE:
-                return 30;
+                return 85;
             case EMERALD_ORE:
                 return 40;
             case NETHER_QUARTZ_ORE:
-                return 50;
+                return 20;
             case COPPER_ORE:
-                return 60;
+                return 30;
             default:
                 return 1;
         }
@@ -34,25 +34,25 @@ public class MiningRequirements {
     public static double getXpReward(Material material) {
         switch(material) {
             case COAL_ORE:
-                return 5;
+                return 17.5;
             case IRON_ORE:
-                return 15;
+                return 35;
             case GOLD_ORE:
-                return 25;
+                return 65;
             case REDSTONE_ORE:
-                return 20;
+                return 80;
             case LAPIS_ORE:
-                return 25;
+                return 95;
             case DIAMOND_ORE:
-                return 50;
+                return 125;
             case EMERALD_ORE:
-                return 60;
+                return 65;
             case NETHER_QUARTZ_ORE:
-                return 7;
+                return 40;
             case COPPER_ORE:
-                return 13;
+                return 50;
             default:
-                return 1;
+                return 5;
         }
     }
     /**
@@ -65,20 +65,26 @@ public class MiningRequirements {
     public static OreDrop getOreDrop(Material ore) {
         switch (ore) {
             case COAL_ORE:
-                // When coal ore is mined, rename it to "Bronze Ore"
-                return new OreDrop(Material.COAL, "Bronze Ore", 5.0);
+                return new OreDrop(Material.COAL, "Bronze Ore", getXpReward(ore));
             case COPPER_ORE:
-                // When copper ore is mined, rename it to "Steel Ore"
-                return new OreDrop(Material.COPPER_ORE, "Steel Ore", 7.0);
+                return new OreDrop(Material.COPPER_ORE, "Steel Ore", getXpReward(ore));
             case REDSTONE_ORE:
-                // When redstone ore is mined, rename it to "Mithril Ore"
-                return new OreDrop(Material.REDSTONE_ORE, "Mithril Ore", 10.0);
+                return new OreDrop(Material.REDSTONE_ORE, "Mithril Ore", getXpReward(ore));
             case DIAMOND_ORE:
-                // When diamond ore is mined, rename it to "Rune Ore"
-                return new OreDrop(Material.DIAMOND, "Rune Ore", 15.0);
+                return new OreDrop(Material.DIAMOND, "Runite Ore", getXpReward(ore));
+            case IRON_ORE:
+                return new OreDrop(Material.IRON_ORE, "Iron Ore", getXpReward(ore));
+            case GOLD_ORE:
+                return new OreDrop(Material.GOLD_ORE, "Gold Ore", getXpReward(ore));
+            case LAPIS_ORE:
+                return new OreDrop(Material.LAPIS_ORE, "Adamantite Ore", getXpReward(ore));
+            case EMERALD_ORE:
+                return new OreDrop(Material.EMERALD_ORE, "Gem Ore", getXpReward(ore));
+            case NETHER_QUARTZ_ORE:
+                return new OreDrop(Material.NETHER_QUARTZ_ORE, "Silver Ore", getXpReward(ore));
             default:
                 // For any other ore, return the material with its normal name.
-                return new OreDrop(ore, ore.name(), 3.0);
+                return new OreDrop(ore, ore.name().replace('_', ' '), getXpReward(ore));
         }
     }
 

@@ -31,10 +31,8 @@ public class CookingListener implements Listener {
         // Check that the player is holding a raw food item.
         ItemStack heldItem = player.getInventory().getItemInMainHand();
         if (heldItem == null) return;
-        Material rawFoodMaterial = heldItem.getType();
-
         // Get food data for this raw food item.
-        CookingRequirements.FoodData foodData = CookingRequirements.getFoodData(rawFoodMaterial);
+        CookingRequirements.FoodData foodData = CookingRequirements.getFoodData(heldItem);
         if (foodData == null) {
             player.sendMessage(ChatColor.RED + "You cannot cook that item.");
             return;
@@ -57,14 +55,6 @@ public class CookingListener implements Listener {
         event.setCancelled(true);
         player.sendMessage(ChatColor.GRAY + "You place the raw food on the campfire...");
 
-        // Capture the custom display name if the raw item already has one.
-        String customName = null;
-        ItemMeta rawMeta = heldItem.getItemMeta();
-        if (rawMeta != null && rawMeta.hasDisplayName()) {
-            customName = rawMeta.getDisplayName();
-        }
-        final String finalCustomName = customName;  // Mark as final for inner class use
-
         // Remove one raw food item from the player's hand.
         int amount = heldItem.getAmount();
         heldItem.setAmount(amount - 1);
@@ -76,11 +66,7 @@ public class CookingListener implements Listener {
                 // Create the cooked food item.
                 ItemStack cookedItem = new ItemStack(foodData.cookedResult, 1);
                 ItemMeta meta = cookedItem.getItemMeta();
-                if (finalCustomName != null) {
-                    meta.setDisplayName(finalCustomName);
-                } else {
-                    meta.setDisplayName(ChatColor.GREEN + foodData.displayName);
-                }
+                meta.setDisplayName(ChatColor.GREEN + foodData.displayName);
                 // Add a unique invisible tag to prevent stacking.
                 meta.setLore(Arrays.asList("\u200B" + System.nanoTime()));
                 cookedItem.setItemMeta(meta);
@@ -88,7 +74,7 @@ public class CookingListener implements Listener {
                 // Instead of dropping the item, add it directly to the player's inventory.
                 player.getInventory().addItem(cookedItem);
                 player.sendMessage(ChatColor.GREEN + "Your food has been cooked into " +
-                        (finalCustomName != null ? finalCustomName : foodData.displayName) + " and placed in your inventory!");
+                        foodData.displayName + " and placed in your inventory!");
 
                 // Award cooking XP.
                 stats.addExperience(foodData.xpReward, player);
